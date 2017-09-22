@@ -1,4 +1,5 @@
 package app;
+import java.util.Arrays;
 
 public class Mazerunner{
 	
@@ -8,7 +9,10 @@ public class Mazerunner{
 		double p = 0.25;
 		
 		createMaze(dimension, p);
-		printMaze();
+		printMaze(maze);
+		
+		ManhattanAStarSearch();
+		printMaze(maze);
 		
 	}
 	public static void createMaze(int dim, double p){
@@ -32,14 +36,14 @@ public class Mazerunner{
 		}
 	}
 	
-	public static void printMaze(){
+	public static void printMaze(int[][] maze){
 		if (maze == null){
 			return;
 		}
 		for (int i = 0; i< maze.length; i++){
 			for (int j = 0; j < maze[0].length; j++){
-				if(maze[i][j] == 0 || maze[i][j] == 1){
-					System.out.print(" ");				//space to keep appearance clean
+				if(maze[i][j] != -1){
+					System.out.print(" "); //space to keep appearance clean
 				}
 				if (j == maze[0].length - 1) {
 					System.out.println(maze[i][j]);
@@ -48,6 +52,24 @@ public class Mazerunner{
 				}
 			}
 		}
+		System.out.println();
+	}
+	
+	public static int[][] copyMaze(int[][] maze){
+		int[][] newMaze = new int[maze.length][maze.length];
+		for (int i=0; i<maze.length; i++){
+			for (int j=0; j<maze[0].length; j++){
+				newMaze[i][j] = maze[i][j];
+			}
+		}
+		return newMaze;
+	}
+	
+	public static void ManhattanAStarSearch(){
+		int[][] manhattanMaze = copyMaze(maze);
+		manhattanMaze[0][0] = 5;
+		
+		printMaze(manhattanMaze);
 	}
 	
 }
