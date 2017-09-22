@@ -4,9 +4,12 @@ import java.util.Arrays;
 public class Mazerunner{
 	
 	static int[][] maze;
+	static int maxMoves = 0; //upperbound for our algorithm, should not execute more than this number of moves, otherwise stuck in loop
+	
 	public static void main(String args[]){
 		int dimension = 10;
 		double p = 0.25;
+		maxMoves = dimension*dimension;
 		
 		createMaze(dimension, p);
 		printMaze(maze);
