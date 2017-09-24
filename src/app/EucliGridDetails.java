@@ -52,7 +52,4 @@ public class EucliGridDetails implements Comparable<EucliGridDetails> {
 			return -1;
 	}
 	
-	public String toString(){
-		return "Row "+getRow()+" Col "+getCol()+" EucliDist "+getEucliDist()+" OriginDist "+getOriginDist();
-	}
 }
