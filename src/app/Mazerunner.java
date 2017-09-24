@@ -1,7 +1,7 @@
 package app;
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.PriorityQueue;
-import app.ManhatGridDetails;
 
 
 public class Mazerunner{
@@ -17,11 +17,25 @@ public class Mazerunner{
 		System.out.println("Original Maze: ");
 		printMaze(maze);
 		
+		System.out.println();
+		System.out.println();
+		
+		System.out.println("################################## Manhattan A* Search ##################################");
 		long startTime = System.nanoTime();
 		ManhattanAStarSearch();
 		long endTime = System.nanoTime();
 		System.out.println("Manhattan A* Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
+		System.out.println("################################## Manhattan A* Search ##################################");
+		
 		System.out.println();
+		System.out.println();
+		
+		System.out.println("################################## Euclidean A* Search ##################################");
+		startTime = System.nanoTime();
+		EuclideanAStarSearch();
+		endTime = System.nanoTime();
+		System.out.println("Euclidean A* Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
+		System.out.println("################################## Euclidean A* Search ##################################");
 		
 	}
 	public static void createMaze(int dim, double p){
@@ -84,6 +98,7 @@ public class Mazerunner{
 	public static void ManhattanAStarSearch(){
 		int[][] manhattanMaze = copyMaze(maze);
 		int dim = maze.length;
+		HashMap<String,String> parentMap = new HashMap<String, String>();
 		boolean[][] notVisited = new boolean[dim][dim];
 		PriorityQueue<ManhatGridDetails> queue = new PriorityQueue<ManhatGridDetails>();
 		
@@ -91,18 +106,20 @@ public class Mazerunner{
 		notVisited[0][0] = true;
 		manhattanMaze[0][0] = 0;
 		
-		if (manhattanMaze[1][0] == 0){
-			queue.add(new ManhatGridDetails(1,0,8+9,0));
+		if (manhattanMaze[i+1][j] == 0){
+			queue.add(new ManhatGridDetails(i+1,j,8+9,0));
+			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 		}
-		if (manhattanMaze[0][1] == 0){
-			queue.add(new ManhatGridDetails(0,1,8+9,0));
+		if (manhattanMaze[i][j+1] == 0){
+			queue.add(new ManhatGridDetails(i,j+1,8+9,0));
+			parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 		}
 		
 		while (!(i == (dim-1) && j == (dim-1)) && currentMove<maxMoves && !queue.isEmpty()) {
 			ManhatGridDetails current = queue.remove();
 			int x = current.getRow();
 			int y = current.getCol();
-			manhattanMaze[x][y] = current.getOriginDist() + 1;
+			manhattanMaze[x][y] = (int) (current.getOriginDist() + 1);
 			notVisited[x][y] = true;
 			
 			i=x;
@@ -112,28 +129,123 @@ public class Mazerunner{
 			if ((j-1) >= 0 && manhattanMaze[i][j-1]==0 && notVisited[i][j-1]==false){
 				//System.out.println(i + ", " + (j-1));
 				queue.add(new ManhatGridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),manhattanMaze[i][j]));
+				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i-1) >= 0 && manhattanMaze[i-1][j]==0 && notVisited[i-1][j]==false){
 				//System.out.println((i-1) + ", " + (j));
 				queue.add(new ManhatGridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),manhattanMaze[i][j]));
+				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i+1) < dim && manhattanMaze[i+1][j]==0 && notVisited[i+1][j]==false){
 				//System.out.println((i+1) + ", " + j);
 				queue.add(new ManhatGridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),manhattanMaze[i][j]));
+				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((j+1) < dim && manhattanMaze[i][j+1]==0 && notVisited[i][j+1]==false){
 				//System.out.println(i + ", " + (j+1));
 				queue.add(new ManhatGridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),manhattanMaze[i][j]));
+				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			
 		};
 		
-		System.out.println("A*: Manhattan Distance Solution: ");
 		if(!(i==dim-1 && j==dim-1)){
 			System.out.println("No solution found.");
+		} else{
+			printSoln(parentMap,dim);
 		}
 		printMaze(manhattanMaze);
 		System.out.println("Number of moves searched: " + currentMove);
+	}
+	
+	public static void EuclideanAStarSearch(){
+		int[][] euclideanMaze = copyMaze(maze);
+		HashMap<String,String> parentMap = new HashMap<String, String>();
+		int dim = maze.length;
+		boolean[][] visited = new boolean[dim][dim];
+		PriorityQueue<EucliGridDetails> pQueue = new PriorityQueue<EucliGridDetails>();
+		
+		int i=0, j=0, currentMove=1;
+		visited[0][0] = true;
+		euclideanMaze[0][0] = 0;
+		
+		if (euclideanMaze[i+1][j] == 0){
+			pQueue.add(new EucliGridDetails(i+1,j,eucliDist(i+1,j,dim),0));
+			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
+		}
+		if (euclideanMaze[i][j+1] == 0){
+			pQueue.add(new EucliGridDetails(i,j+1,eucliDist(i,j+1,dim),0));
+			parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
+		}
+		
+		while (!(i == (dim-1) && j == (dim-1)) && currentMove<maxMoves && !pQueue.isEmpty()) {
+			EucliGridDetails current = pQueue.remove();
+			int x = current.getRow();
+			int y = current.getCol();
+			euclideanMaze[x][y] = (int) (current.getOriginDist() + 1);
+			visited[x][y] = true;
+			
+			i=x;
+			j=y;
+			currentMove++;
+			
+			if ((j-1) >= 0 && euclideanMaze[i][j-1]==0 && visited[i][j-1]==false){
+				pQueue.add(new EucliGridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),euclideanMaze[i][j]));
+				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
+			}
+			if ((i-1) >= 0 && euclideanMaze[i-1][j]==0 && visited[i-1][j]==false){
+				pQueue.add(new EucliGridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),euclideanMaze[i][j]));
+				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
+			}
+			if ((i+1) < dim && euclideanMaze[i+1][j]==0 && visited[i+1][j]==false){
+				pQueue.add(new EucliGridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),euclideanMaze[i][j]));
+				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
+			}
+			if ((j+1) < dim && euclideanMaze[i][j+1]==0 && visited[i][j+1]==false){
+				pQueue.add(new EucliGridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),euclideanMaze[i][j]));
+				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
+			}
+			
+		};
+		
+		if(!(i==dim-1 && j==dim-1)){
+			System.out.println("No solution found.");
+		} else{
+			printSoln(parentMap,dim);
+		}
+		printMaze(euclideanMaze);
+		System.out.println("Number of moves searched: " + currentMove);
+		
+	}
+	
+	public static void printSoln(HashMap<String,String> parentMap, int dim){
+		ArrayList<String> pathArr = new ArrayList<String>();
+		String key=String.valueOf(dim-1)+"-"+String.valueOf(dim-1);
+		while(!parentMap.isEmpty()){
+			if(parentMap.containsKey(key)){
+				String tempKey=parentMap.get(key);
+				pathArr.add(tempKey);
+				parentMap.remove(key);
+				key=tempKey;
+			} else{
+				parentMap.clear();
+			}
+		}
+		
+		System.out.println();
+		System.out.println("************* Path from Start to Goal *************");
+		System.out.println();
+		for(int a=pathArr.size()-1;a>=0;a--){
+			System.out.print(pathArr.get(a)+" , ");
+		}
+		System.out.println(String.valueOf(dim-1)+"-"+String.valueOf(dim-1));
+		System.out.println();
+		System.out.println("************* Path from Start to Goal *************");
+		System.out.println();
+	}
+	
+	public static double eucliDist(int row, int col, int dim){
+		return (Math.sqrt(Math.pow((dim-row), 2)+Math.pow((dim-col), 2)));
 	}
 	
 }
