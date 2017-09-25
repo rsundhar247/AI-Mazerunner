@@ -108,11 +108,11 @@ public class Mazerunner{
 		manhattanMaze[0][0] = 0;
 		
 		if (manhattanMaze[i+1][j] == 0){
-			queue.add(new GridDetails(i+1,j,(dim-1-(i+1)) + (dim-1-j),0));
+			queue.add(new GridDetails(i+1,j,(dim-1-(i+1)) + (dim-1-j), 1));
 			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 		}
 		if (manhattanMaze[i][j+1] == 0){
-			queue.add(new GridDetails(i,j+1,(dim-1-i) + (dim-1-(j+1)),0));
+			queue.add(new GridDetails(i,j+1,(dim-1-i) + (dim-1-(j+1)), 1));
 			parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 		}
 		
@@ -124,7 +124,7 @@ public class Mazerunner{
 			y = current.getCol();
 			} while (visited[x][y]==true);
 			
-			manhattanMaze[x][y] = (int) (current.getOriginDist() + 1);
+			manhattanMaze[x][y] = (int) (current.getOriginDist());
 			visited[x][y] = true;
 			
 			i=x;
@@ -133,22 +133,22 @@ public class Mazerunner{
 			
 			if ((j-1) >= 0 && manhattanMaze[i][j-1]==0 && visited[i][j-1]==false){
 				//System.out.println(i + ", " + (j-1));
-				queue.add(new GridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),manhattanMaze[i][j]));
+				queue.add(new GridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),manhattanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i-1) >= 0 && manhattanMaze[i-1][j]==0 && visited[i-1][j]==false){
 				//System.out.println((i-1) + ", " + (j));
-				queue.add(new GridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),manhattanMaze[i][j]));
+				queue.add(new GridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),manhattanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i+1) < dim && manhattanMaze[i+1][j]==0 && visited[i+1][j]==false){
 				//System.out.println((i+1) + ", " + j);
-				queue.add(new GridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),manhattanMaze[i][j]));
+				queue.add(new GridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),manhattanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((j+1) < dim && manhattanMaze[i][j+1]==0 && visited[i][j+1]==false){
 				//System.out.println(i + ", " + (j+1));
-				queue.add(new GridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),manhattanMaze[i][j]));
+				queue.add(new GridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),manhattanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			
@@ -175,11 +175,11 @@ public class Mazerunner{
 		euclideanMaze[0][0] = 0;
 		
 		if (euclideanMaze[i+1][j] == 0){
-			pQueue.add(new GridDetails(i+1,j,eucliDist(i+1,j,dim),0));
+			pQueue.add(new GridDetails(i+1,j,eucliDist(i+1,j,dim), 1));
 			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 		}
 		if (euclideanMaze[i][j+1] == 0){
-			pQueue.add(new GridDetails(i,j+1,eucliDist(i,j+1,dim),0));
+			pQueue.add(new GridDetails(i,j+1,eucliDist(i,j+1,dim), 1));
 			parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 		}
 		
@@ -190,7 +190,8 @@ public class Mazerunner{
 			x = current.getRow();
 			y = current.getCol();
 			} while (visited[x][y]==true);
-			euclideanMaze[x][y] = (int) (current.getOriginDist() + 1);
+			euclideanMaze[x][y] = (int) (current.getOriginDist());
+			//euclideanMaze[x][y] = currentMove;
 			visited[x][y] = true;
 			
 			i=x;
@@ -199,22 +200,22 @@ public class Mazerunner{
 			
 			if ((j-1) >= 0 && euclideanMaze[i][j-1]==0 && visited[i][j-1]==false){
 				//System.out.println(i + ", " + (j-1));
-				pQueue.add(new GridDetails(i,(j-1),eucliDist(i,j-1,dim),euclideanMaze[i][j]));
+				pQueue.add(new GridDetails(i,(j-1),eucliDist(i,j-1,dim),euclideanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i-1) >= 0 && euclideanMaze[i-1][j]==0 && visited[i-1][j]==false){
 				//System.out.println((i-1) + ", " + (j));
-				pQueue.add(new GridDetails((i-1),j,eucliDist(i-1,j,dim),euclideanMaze[i][j]));
+				pQueue.add(new GridDetails((i-1),j,eucliDist(i-1,j,dim),euclideanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i+1) < dim && euclideanMaze[i+1][j]==0 && visited[i+1][j]==false){
 				//System.out.println((i+1) + ", " + j);
-				pQueue.add(new GridDetails((i+1),j,eucliDist(i+1,j,dim),euclideanMaze[i][j]));
+				pQueue.add(new GridDetails((i+1),j,eucliDist(i+1,j,dim),euclideanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((j+1) < dim && euclideanMaze[i][j+1]==0 && visited[i][j+1]==false){
 				//System.out.println(i + ", " + (j+1));
-				pQueue.add(new GridDetails(i,(j+1),eucliDist(i,j+1,dim),euclideanMaze[i][j]));
+				pQueue.add(new GridDetails(i,(j+1),eucliDist(i,j+1,dim),euclideanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			
