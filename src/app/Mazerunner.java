@@ -1,7 +1,7 @@
 package app;
 import java.util.Comparator;
 import java.util.PriorityQueue;
-import app.ManhatGridDetails;
+import app.GridDetails;
 
 
 public class Mazerunner{
@@ -85,21 +85,21 @@ public class Mazerunner{
 		int[][] manhattanMaze = copyMaze(maze);
 		int dim = maze.length;
 		boolean[][] notVisited = new boolean[dim][dim];
-		PriorityQueue<ManhatGridDetails> queue = new PriorityQueue<ManhatGridDetails>();
+		PriorityQueue<GridDetails> queue = new PriorityQueue<GridDetails>();
 		
 		int i=0, j=0, currentMove=1;
 		notVisited[0][0] = true;
 		manhattanMaze[0][0] = 0;
 		
 		if (manhattanMaze[1][0] == 0){
-			queue.add(new ManhatGridDetails(1,0,8+9,0));
+			queue.add(new GridDetails(1,0,8+9,0));
 		}
 		if (manhattanMaze[0][1] == 0){
-			queue.add(new ManhatGridDetails(0,1,8+9,0));
+			queue.add(new GridDetails(0,1,8+9,0));
 		}
 		
 		while (!(i == (dim-1) && j == (dim-1)) && currentMove<maxMoves && !queue.isEmpty()) {
-			ManhatGridDetails current = queue.remove();
+			GridDetails current = queue.remove();
 			int x = current.getRow();
 			int y = current.getCol();
 			manhattanMaze[x][y] = current.getOriginDist() + 1;
@@ -111,19 +111,19 @@ public class Mazerunner{
 			
 			if ((j-1) >= 0 && manhattanMaze[i][j-1]==0 && notVisited[i][j-1]==false){
 				//System.out.println(i + ", " + (j-1));
-				queue.add(new ManhatGridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),manhattanMaze[i][j]));
+				queue.add(new GridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),manhattanMaze[i][j]));
 			}
 			if ((i-1) >= 0 && manhattanMaze[i-1][j]==0 && notVisited[i-1][j]==false){
 				//System.out.println((i-1) + ", " + (j));
-				queue.add(new ManhatGridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),manhattanMaze[i][j]));
+				queue.add(new GridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),manhattanMaze[i][j]));
 			}
 			if ((i+1) < dim && manhattanMaze[i+1][j]==0 && notVisited[i+1][j]==false){
 				//System.out.println((i+1) + ", " + j);
-				queue.add(new ManhatGridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),manhattanMaze[i][j]));
+				queue.add(new GridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),manhattanMaze[i][j]));
 			}
 			if ((j+1) < dim && manhattanMaze[i][j+1]==0 && notVisited[i][j+1]==false){
 				//System.out.println(i + ", " + (j+1));
-				queue.add(new ManhatGridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),manhattanMaze[i][j]));
+				queue.add(new GridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),manhattanMaze[i][j]));
 			}
 			
 		};
