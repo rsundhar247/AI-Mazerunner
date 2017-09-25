@@ -10,8 +10,8 @@ public class Mazerunner{
 	static int maxMoves = 0; //upperbound, should not execute more than this number of moves, otherwise stuck in infinite loop
 	
 	public static void main(String args[]){
-		int dimension = 10;
-		double p = 0.25;
+		int dimension = 15;
+		double p = 0.2;
 		
 		createMaze(dimension, p);
 		System.out.println("Original Maze: ");
@@ -100,23 +100,23 @@ public class Mazerunner{
 		int dim = maze.length;
 		HashMap<String,String> parentMap = new HashMap<String, String>();
 		boolean[][] notVisited = new boolean[dim][dim];
-		PriorityQueue<ManhatGridDetails> queue = new PriorityQueue<ManhatGridDetails>();
+		PriorityQueue<GridDetails> queue = new PriorityQueue<GridDetails>();
 		
 		int i=0, j=0, currentMove=1;
 		notVisited[0][0] = true;
 		manhattanMaze[0][0] = 0;
 		
 		if (manhattanMaze[i+1][j] == 0){
-			queue.add(new ManhatGridDetails(i+1,j,8+9,0));
+			queue.add(new GridDetails(i+1,j,8+9,0));
 			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 		}
 		if (manhattanMaze[i][j+1] == 0){
-			queue.add(new ManhatGridDetails(i,j+1,8+9,0));
+			queue.add(new GridDetails(i,j+1,8+9,0));
 			parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 		}
 		
 		while (!(i == (dim-1) && j == (dim-1)) && currentMove<maxMoves && !queue.isEmpty()) {
-			ManhatGridDetails current = queue.remove();
+			GridDetails current = queue.remove();
 			int x = current.getRow();
 			int y = current.getCol();
 			manhattanMaze[x][y] = (int) (current.getOriginDist() + 1);
@@ -128,22 +128,22 @@ public class Mazerunner{
 			
 			if ((j-1) >= 0 && manhattanMaze[i][j-1]==0 && notVisited[i][j-1]==false){
 				//System.out.println(i + ", " + (j-1));
-				queue.add(new ManhatGridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),manhattanMaze[i][j]));
+				queue.add(new GridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),manhattanMaze[i][j]));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i-1) >= 0 && manhattanMaze[i-1][j]==0 && notVisited[i-1][j]==false){
 				//System.out.println((i-1) + ", " + (j));
-				queue.add(new ManhatGridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),manhattanMaze[i][j]));
+				queue.add(new GridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),manhattanMaze[i][j]));
 				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i+1) < dim && manhattanMaze[i+1][j]==0 && notVisited[i+1][j]==false){
 				//System.out.println((i+1) + ", " + j);
-				queue.add(new ManhatGridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),manhattanMaze[i][j]));
+				queue.add(new GridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),manhattanMaze[i][j]));
 				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((j+1) < dim && manhattanMaze[i][j+1]==0 && notVisited[i][j+1]==false){
 				//System.out.println(i + ", " + (j+1));
-				queue.add(new ManhatGridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),manhattanMaze[i][j]));
+				queue.add(new GridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),manhattanMaze[i][j]));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			
@@ -163,23 +163,23 @@ public class Mazerunner{
 		HashMap<String,String> parentMap = new HashMap<String, String>();
 		int dim = maze.length;
 		boolean[][] visited = new boolean[dim][dim];
-		PriorityQueue<EucliGridDetails> pQueue = new PriorityQueue<EucliGridDetails>();
+		PriorityQueue<GridDetails> pQueue = new PriorityQueue<GridDetails>();
 		
 		int i=0, j=0, currentMove=1;
 		visited[0][0] = true;
 		euclideanMaze[0][0] = 0;
 		
 		if (euclideanMaze[i+1][j] == 0){
-			pQueue.add(new EucliGridDetails(i+1,j,eucliDist(i+1,j,dim),0));
+			pQueue.add(new GridDetails(i+1,j,eucliDist(i+1,j,dim),0));
 			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 		}
 		if (euclideanMaze[i][j+1] == 0){
-			pQueue.add(new EucliGridDetails(i,j+1,eucliDist(i,j+1,dim),0));
+			pQueue.add(new GridDetails(i,j+1,eucliDist(i,j+1,dim),0));
 			parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 		}
 		
 		while (!(i == (dim-1) && j == (dim-1)) && currentMove<maxMoves && !pQueue.isEmpty()) {
-			EucliGridDetails current = pQueue.remove();
+			GridDetails current = pQueue.remove();
 			int x = current.getRow();
 			int y = current.getCol();
 			euclideanMaze[x][y] = (int) (current.getOriginDist() + 1);
@@ -190,19 +190,19 @@ public class Mazerunner{
 			currentMove++;
 			
 			if ((j-1) >= 0 && euclideanMaze[i][j-1]==0 && visited[i][j-1]==false){
-				pQueue.add(new EucliGridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),euclideanMaze[i][j]));
+				pQueue.add(new GridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),euclideanMaze[i][j]));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i-1) >= 0 && euclideanMaze[i-1][j]==0 && visited[i-1][j]==false){
-				pQueue.add(new EucliGridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),euclideanMaze[i][j]));
+				pQueue.add(new GridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),euclideanMaze[i][j]));
 				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i+1) < dim && euclideanMaze[i+1][j]==0 && visited[i+1][j]==false){
-				pQueue.add(new EucliGridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),euclideanMaze[i][j]));
+				pQueue.add(new GridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),euclideanMaze[i][j]));
 				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((j+1) < dim && euclideanMaze[i][j+1]==0 && visited[i][j+1]==false){
-				pQueue.add(new EucliGridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),euclideanMaze[i][j]));
+				pQueue.add(new GridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),euclideanMaze[i][j]));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			
