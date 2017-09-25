@@ -1,9 +1,11 @@
 package app;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import app.GridDetails;
 import java.util.Stack;
+import java.util.Queue;
 
 
 
@@ -29,6 +31,16 @@ public class Mazerunner{
 		long endTime = System.nanoTime();
 		System.out.println("Manhattan A* Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
 		System.out.println("################################## DFS Search ##################################");
+		
+		System.out.println();
+		System.out.println();
+		
+		System.out.println("################################## BFS Search ##################################");
+		startTime = System.nanoTime();
+		BFSMazeSearch();
+		endTime = System.nanoTime();
+		System.out.println("Manhattan A* Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
+		System.out.println("################################## BFS Search ##################################");
 		
 		System.out.println();
 		System.out.println();
@@ -201,6 +213,103 @@ public class Mazerunner{
 			printSoln(parentMap,dim);
 		}
 		printMaze(DFSMaze);
+		System.out.println("Number of moves searched: " + currentMove);
+		
+	}
+
+	public static void BFSMazeSearch(){
+		int[][] BFSMaze = copyMaze(maze);
+		int dim = maze.length;
+		HashMap<String,String> parentMap = new HashMap<String, String>();
+		boolean[][] visited = new boolean[dim][dim];
+		Queue<int[]> queue = new LinkedList<int[]>();
+		
+		int i=0, j=0, currentMove=1;
+		visited[0][0] = true;
+		BFSMaze[0][0] = 0;
+		
+		if (BFSMaze[i+1][j] == 0){
+			int[] temp = new int[3];
+			temp[0] = i+1;
+			temp[1] = j;
+			temp[2] = 1; //path length to this move, first move so =1
+			queue.add(temp);
+			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
+		}
+		if (BFSMaze[i][j+1] == 0){
+			int[] temp = new int[3];
+			temp[0] = i;
+			temp[1] = j+1;
+			temp[2] = 1; //path length to this move, first move so =1
+			queue.add(temp);
+			parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
+		}
+		
+		while (!(i == (dim-1) && j == (dim-1)) && currentMove<maxMoves && !queue.isEmpty()) {
+			int x, y, length;
+			int[] current;
+			do {current = queue.remove();
+			x = current[0];
+			y = current[1];
+			length = current[2];
+			} while (visited[x][y]==true && !queue.isEmpty());
+			
+			if (queue.isEmpty() && (current[0]==i && current[1]==j)){
+				break;
+			}
+			
+			BFSMaze[x][y] = current[2];
+			visited[x][y] = true;
+			
+			i=x;
+			j=y;
+			currentMove++;
+			
+			if ((j-1) >= 0 && BFSMaze[i][j-1]==0 && visited[i][j-1]==false){
+				//System.out.println(i + ", " + (j-1));
+				int[] temp = new int[3];
+				temp[0] = i;
+				temp[1] = j-1;
+				temp[2] = BFSMaze[i][j] + 1;
+				queue.add(temp);
+				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
+			}
+			if ((i-1) >= 0 && BFSMaze[i-1][j]==0 && visited[i-1][j]==false){
+				//System.out.println((i-1) + ", " + (j));
+				int[] temp = new int[3];
+				temp[0] = i-1;
+				temp[1] = j;
+				temp[2] = BFSMaze[i][j] + 1;
+				queue.add(temp);
+				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
+			}
+			if ((i+1) < dim && BFSMaze[i+1][j]==0 && visited[i+1][j]==false){
+				//System.out.println((i+1) + ", " + j);
+				int[] temp = new int[3];
+				temp[0] = i+1;
+				temp[1] = j;
+				temp[2] = BFSMaze[i][j] + 1;
+				queue.add(temp);
+				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
+			}
+			if ((j+1) < dim && BFSMaze[i][j+1]==0 && visited[i][j+1]==false){
+				//System.out.println(i + ", " + (j+1));
+				int[] temp = new int[3];
+				temp[0] = i;
+				temp[1] = j+1;
+				temp[2] = BFSMaze[i][j] + 1;
+				queue.add(temp);
+				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
+			}
+			
+		};
+		
+		if(!(i==dim-1 && j==dim-1)){
+			System.out.println("No solution found.");
+		} else{
+			printSoln(parentMap,dim);
+		}
+		printMaze(BFSMaze);
 		System.out.println("Number of moves searched: " + currentMove);
 		
 	}
