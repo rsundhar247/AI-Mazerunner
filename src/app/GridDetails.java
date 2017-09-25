@@ -4,8 +4,8 @@ public class GridDetails implements Comparable<GridDetails> {
 
 	private int row;
 	private int col;
-	private int dist;
-	private int originDist;
+	private double dist;
+	private double originDist;
 	
 	public int getRow() {
 		return row;
@@ -19,23 +19,23 @@ public class GridDetails implements Comparable<GridDetails> {
 	public void setCol(int col) {
 		this.col = col;
 	}	
-	public int getDist() {
+	public double getDist() {
 		return dist;
 	}
-	public void setdist(int dist) {
+	public void setDist(double dist) {
 		this.dist = dist;
 	}
-	public int getOriginDist() {
+	public double getOriginDist() {
 		return originDist;
 	}
-	public void setOriginDist(int originDist) {
+	public void setOriginDist(double originDist) {
 		this.originDist = originDist;
 	}
 	
-	public GridDetails(int r, int c, int m, int o){
+	public GridDetails(int r, int c, double e, double o){
 		setRow(r);
 		setCol(c);
-		setdist(m);
+		setDist(e);
 		setOriginDist(o);
 	}
 	
@@ -52,7 +52,4 @@ public class GridDetails implements Comparable<GridDetails> {
 			return -1;
 	}
 	
-	public String toString(){
-		return "Row "+getRow()+" Col "+getCol()+" dist "+getDist()+" OriginDist "+getOriginDist();
-	}
 }
