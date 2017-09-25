@@ -11,8 +11,8 @@ public class Mazerunner{
 	static int maxMoves = 0; //upperbound, should not execute more than this number of moves, otherwise stuck in infinite loop
 	
 	public static void main(String args[]){
-		int dimension = 10;
-		double p = 0.25;
+		int dimension = 15;
+		double p = 0.2;
 		
 		createMaze(dimension, p);
 		System.out.println("Original Maze: ");
@@ -191,6 +191,7 @@ public class Mazerunner{
 			currentMove++;
 			
 			if ((j-1) >= 0 && euclideanMaze[i][j-1]==0 && visited[i][j-1]==false){
+<<<<<<< HEAD
 				pQueue.add(new GridDetails(i,(j-1),eucliDist(i,j-1,dim),euclideanMaze[i][j]));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
@@ -204,6 +205,21 @@ public class Mazerunner{
 			}
 			if ((j+1) < dim && euclideanMaze[i][j+1]==0 && visited[i][j+1]==false){
 				pQueue.add(new GridDetails(i,(j+1),eucliDist(i,j+1,dim),euclideanMaze[i][j]));
+=======
+				pQueue.add(new GridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),euclideanMaze[i][j]));
+				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
+			}
+			if ((i-1) >= 0 && euclideanMaze[i-1][j]==0 && visited[i-1][j]==false){
+				pQueue.add(new GridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),euclideanMaze[i][j]));
+				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
+			}
+			if ((i+1) < dim && euclideanMaze[i+1][j]==0 && visited[i+1][j]==false){
+				pQueue.add(new GridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),euclideanMaze[i][j]));
+				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
+			}
+			if ((j+1) < dim && euclideanMaze[i][j+1]==0 && visited[i][j+1]==false){
+				pQueue.add(new GridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),euclideanMaze[i][j]));
+>>>>>>> c79146cb04c03fe5b8257de23056067df8c76a48
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			
