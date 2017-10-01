@@ -423,6 +423,7 @@ public class Mazerunner{
 		
 		int i=0, j=0, currentMove=1;
 		visited[0][0] = true;
+
 		
 		if (euclideanMaze[i+1][j] == 0){
 			pQueue.add(new GridDetails(i+1,j,eucliDist(i+1,j,dim), 1));

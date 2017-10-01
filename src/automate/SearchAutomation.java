@@ -10,7 +10,10 @@ public class SearchAutomation {
 	
 	public static void main(String args[]){
 		searchAutomate();
-		geneticMaze();
+		geneticMaze("DFS");
+		geneticMaze("BFS");
+		geneticMaze("Manhat");
+		geneticMaze("Eucli");
 	}
 	
 	public static void searchAutomate(){
@@ -154,7 +157,13 @@ public class SearchAutomation {
 		//System.out.println(searchResults);
 	}
 	
-	public static void geneticMaze(){
+	public static void geneticMaze(String searchAlg){
+		int alg = 0;
+		if (searchAlg.equals("DFS")) alg = 1;
+		else if (searchAlg.equals("BFS")) alg = 2;
+		else if (searchAlg.equals("Manhat")) alg = 3;
+		else if (searchAlg.equals("Eucli")) alg = 4;
+		
 		long startTime = System.nanoTime();
 		int[][] maze1 = new int[dimension][dimension];
 		int[][] maze1Copy = new int[dimension][dimension];
@@ -172,27 +181,109 @@ public class SearchAutomation {
 			{
 				maze1 = maze.createMaze(dimension,prob);
 				maze1Copy = maze.copyMaze(maze1);
-				firstSearch = maze.EuclideanAStarSearch(maze1Copy);
 				maze2 = maze.createMaze(dimension,prob);
 				maze2Copy = maze.copyMaze(maze2);
-				secondSearch = maze.EuclideanAStarSearch(maze2Copy);
-				if(firstSearch.containsKey("EucliMazeSearchTime") && firstSearch.containsKey("EucliMazeSearchMoves") 
-								&& secondSearch.containsKey("EucliMazeSearchTime") && secondSearch.containsKey("EucliMazeSearchMoves")) {
-					maze1 = joinMazeDiagonal(maze1,maze2,Double.parseDouble(firstSearch.get("EucliMazeSearchTime")));
+				
+				switch (alg) {
+					case 1: 
+						firstSearch = maze.DFSMazeSearch(maze1Copy);
+						secondSearch = maze.DFSMazeSearch(maze2Copy);
+						if(firstSearch.containsKey("DFSMazeSearchTime") && firstSearch.containsKey("DFSMazeSearchMoves") && firstSearch.containsKey("DFSMazeMaxFringe")
+								&& secondSearch.containsKey("DFSMazeSearchTime") && secondSearch.containsKey("DFSMazeSearchMoves") && secondSearch.containsKey("DFSMazeMaxFringe")) {
+							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")));
 					
-					if(maze1[0][0] != -1)
-						firstLoop = false;
+							if(maze1[0][0] != -1)
+								firstLoop = false;
+						}
+						break;
+					case 2:	
+						firstSearch = maze.BFSMazeSearch(maze1Copy);
+						secondSearch = maze.BFSMazeSearch(maze2Copy);
+						if(firstSearch.containsKey("BFSMazeSearchTime") && firstSearch.containsKey("BFSMazeSearchMoves") 
+								&& secondSearch.containsKey("BFSMazeSearchTime") && secondSearch.containsKey("BFSMazeSearchMoves")) {
+							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")));
+					
+							if(maze1[0][0] != -1)
+								firstLoop = false;
+						}
+						break;
+					case 3:	
+						firstSearch = maze.ManhattanAStarSearch(maze1Copy);
+						secondSearch = maze.ManhattanAStarSearch(maze2Copy);
+						if(firstSearch.containsKey("ManhatMazeSearchTime") && firstSearch.containsKey("ManhatMazeSearchMoves") 
+								&& secondSearch.containsKey("ManhatMazeSearchTime") && secondSearch.containsKey("ManhatMazeSearchMoves")) {
+							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")));
+					
+							if(maze1[0][0] != -1)
+								firstLoop = false;
+						}
+						break;
+					case 4:	
+						firstSearch = maze.EuclideanAStarSearch(maze1Copy);
+						secondSearch = maze.EuclideanAStarSearch(maze2Copy);
+						if(firstSearch.containsKey("EucliMazeSearchTime") && firstSearch.containsKey("EucliMazeSearchMoves") 
+								&& secondSearch.containsKey("EucliMazeSearchTime") && secondSearch.containsKey("EucliMazeSearchMoves")) {
+							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")));
+					
+							if(maze1[0][0] != -1)
+								firstLoop = false;
+						}
+						break;
 				}
+				
 			} else {
 				maze2 = maze.createMaze(dimension, prob);
 				maze2Copy = maze.copyMaze(maze2);
-				maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")));
+				
+				switch (alg) {
+					case 1:
+						maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")));
+						break;
+					case 2:
+						maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")));
+						break;
+					case 3:
+						maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")));
+						break;
+					case 4:
+						maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")));
+						break;
+				}
 				if(maze1[0][0] == -1) {
 					maze1[0][0] = 0;
-					maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")));
+					
+					switch (alg) {
+						case 1:
+							maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")));
+							break;
+						case 2:
+							maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")));
+							break;
+						case 3:
+							maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")));
+							break;
+						case 4:
+							maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")));
+							break;
+					}
+					
 					if(maze1[0][0] == -1) {
 						maze1[0][0] = 0;
-						maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")));
+						
+						switch (alg) {
+							case 1:
+								maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")));
+								break;
+							case 2:
+								maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")));
+								break;
+							case 3:
+								maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")));
+								break;
+							case 4:
+								maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")));
+								break;
+						}	
 						
 						if(maze1[0][0] == -1){
 							maze1[0][0] = 0;
@@ -204,16 +295,56 @@ public class SearchAutomation {
 			}
 		}
 		long endTime = System.nanoTime();
-		System.out.println("****************** Hard Maze Found ******************");
-		maze.printMaze(maze1);
-		System.out.println("****************** Hard Maze Found ******************");
-		System.out.println("Time taken for Genetic Algorithm ::: "+String.valueOf((0.000001)*(endTime - startTime))+"ms");
-		firstSearch = maze.EuclideanAStarSearch(maze1);
-		System.out.println("Path for harder Maze is ::: "+firstSearch.get("EucliMazeSearchSoln"));
-		System.out.println("Time taken for harder Maze is ::: "+firstSearch.get("EucliMazeSearchTime"));
-		System.out.println("Number of Moves for harder Maze is ::: "+firstSearch.get("EucliMazeSearchMoves"));
-		System.out.println("Maximum Fringe Size for harder Maze is ::: "+firstSearch.get("EucliMazeMaxFringe"));
-		System.out.println("Shortest Path Length for harder Maze is ::: "+firstSearch.get("EucliMazePathLen"));
+		switch (alg) {
+			case 1:
+				System.out.println("****************** DFS Hard Maze Found ******************");
+				maze.printMaze(maze1);
+				System.out.println("****************** DFS Hard Maze Found ******************");
+				System.out.println("Time taken for Genetic Algorithm ::: "+String.valueOf((0.000001)*(endTime - startTime))+"ms");
+				firstSearch = maze.DFSMazeSearch(maze1);
+				System.out.println("Path for harder Maze is ::: "+firstSearch.get("DFSMazeSearchSoln"));
+				System.out.println("Time taken for harder Maze is ::: "+firstSearch.get("DFSMazeSearchTime"));
+				System.out.println("Number of Moves for harder Maze is ::: "+firstSearch.get("DFSMazeSearchMoves"));
+				System.out.println("Maximum Fringe Size for harder Maze is ::: "+firstSearch.get("DFSMazeMaxFringe"));
+				System.out.println("Shortest Path Length for harder Maze is ::: "+firstSearch.get("DFSMazePathLen"));
+				break;
+			case 2:
+				System.out.println("****************** BFS Hard Maze Found ******************");
+				maze.printMaze(maze1);
+				System.out.println("****************** BFS Hard Maze Found ******************");
+				System.out.println("Time taken for Genetic Algorithm ::: "+String.valueOf((0.000001)*(endTime - startTime))+"ms");
+				firstSearch = maze.BFSMazeSearch(maze1);
+				System.out.println("Path for harder Maze is ::: "+firstSearch.get("BFSMazeSearchSoln"));
+				System.out.println("Time taken for harder Maze is ::: "+firstSearch.get("BFSMazeSearchTime"));
+				System.out.println("Number of Moves for harder Maze is ::: "+firstSearch.get("BFSMazeSearchMoves"));
+				System.out.println("Maximum Fringe Size for harder Maze is ::: "+firstSearch.get("BFSMazeMaxFringe"));
+				System.out.println("Shortest Path Length for harder Maze is ::: "+firstSearch.get("BFSMazePathLen"));
+				break;
+			case 3: 
+				System.out.println("****************** Manhattan A* Hard Maze Found ******************");
+				maze.printMaze(maze1);
+				System.out.println("****************** Manhattan A* Hard Maze Found ******************");
+				System.out.println("Time taken for Genetic Algorithm ::: "+String.valueOf((0.000001)*(endTime - startTime))+"ms");
+				firstSearch = maze.ManhattanAStarSearch(maze1);
+				System.out.println("Path for harder Maze is ::: "+firstSearch.get("ManhatMazeSearchSoln"));
+				System.out.println("Time taken for harder Maze is ::: "+firstSearch.get("ManhatMazeSearchTime"));
+				System.out.println("Number of Moves for harder Maze is ::: "+firstSearch.get("ManhatMazeSearchMoves"));
+				System.out.println("Maximum Fringe Size for harder Maze is ::: "+firstSearch.get("ManhatMazeMaxFringe"));
+				System.out.println("Shortest Path Length for harder Maze is ::: "+firstSearch.get("ManhatMazePathLen"));
+				break;
+			case 4:
+				System.out.println("****************** Euclidean Hard Maze Found ******************");
+				maze.printMaze(maze1);
+				System.out.println("****************** Euclidean Hard Maze Found ******************");
+				System.out.println("Time taken for Genetic Algorithm ::: "+String.valueOf((0.000001)*(endTime - startTime))+"ms");
+				firstSearch = maze.EuclideanAStarSearch(maze1);
+				System.out.println("Path for harder Maze is ::: "+firstSearch.get("EucliMazeSearchSoln"));
+				System.out.println("Time taken for harder Maze is ::: "+firstSearch.get("EucliMazeSearchTime"));
+				System.out.println("Number of Moves for harder Maze is ::: "+firstSearch.get("EucliMazeSearchMoves"));
+				System.out.println("Maximum Fringe Size for harder Maze is ::: "+firstSearch.get("EucliMazeMaxFringe"));
+				System.out.println("Shortest Path Length for harder Maze is ::: "+firstSearch.get("EucliMazePathLen"));
+				break;
+		}
 	}
 	
 	public static int[][] joinMazeDiagonal(int[][] mazeOne,int[][] mazeTwo,double heuristic){
