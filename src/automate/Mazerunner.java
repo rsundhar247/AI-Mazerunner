@@ -10,16 +10,14 @@ import java.util.Stack;
 
 public class Mazerunner{
 	
-	static int[][] maze;
-	static int maxMoves = 0; //upperbound, should not execute more than this number of moves, otherwise stuck in infinite loop
-	
-	public HashMap<String,String> gridSearch(int dim){
+	static int pathLen = 0;
+		
+	/*public HashMap<String,String> gridSearch(int dim){
 		int dimension = dim;
 		double p = 0.3;
 		HashMap<String,String> searchResults = new HashMap<String,String>();
-		int searchMoves;
 		
-		createMaze(dimension, p);
+		int[][] mazeGrid = createMaze(dimension, p);
 		//System.out.println("Original Maze: ");
 		//printMaze(maze);
 		
@@ -27,63 +25,48 @@ public class Mazerunner{
 		//System.out.println();
 		
 		//System.out.println("################################## DFS Search ##################################");
-		long startTime = System.nanoTime();
-		searchMoves = DFSMazeSearch();
-		long endTime = System.nanoTime();
+		//long startTime = System.nanoTime();
+		searchResults = DFSMazeSearch(mazeGrid);
+		//long endTime = System.nanoTime();
 		//System.out.println("DFS Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
-		if(searchMoves != 0) {
-			searchResults.put("DFSMazeSearchMoves", String.valueOf(searchMoves));
-			searchResults.put("DFSMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
-		}
 		//System.out.println("################################## DFS Search ##################################");
 		
 		//System.out.println();
 		//System.out.println();
 		
 		//System.out.println("################################## BFS Search ##################################");
-		startTime = System.nanoTime();
-		searchMoves = BFSMazeSearch();
-		endTime = System.nanoTime();
+		//startTime = System.nanoTime();
+		searchResults = BFSMazeSearch(mazeGrid);
+		//endTime = System.nanoTime();
 		//System.out.println("BFS Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
-		if(searchMoves != 0) {
-			searchResults.put("BFSMazeSearchMoves", String.valueOf(searchMoves));
-			searchResults.put("BFSMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
-		}
 		//System.out.println("################################## BFS Search ##################################");
 		
 		//System.out.println();
 		//System.out.println();
 		
 		//System.out.println("################################## Manhattan A* Search ##################################");
-		startTime = System.nanoTime();
-		searchMoves = ManhattanAStarSearch();
-		endTime = System.nanoTime();
+		//startTime = System.nanoTime();
+		searchResults = ManhattanAStarSearch(mazeGrid);
+		//endTime = System.nanoTime();
 		//System.out.println("Manhattan A* Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
-		if(searchMoves != 0) {
-			searchResults.put("ManhatMazeSearchMoves", String.valueOf(searchMoves));
-			searchResults.put("ManhatMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
-		}
 		//System.out.println("################################## Manhattan A* Search ##################################");
 		
 		//System.out.println();
 		//System.out.println();
 		
 		//System.out.println("################################## Euclidean A* Search ##################################");
-		startTime = System.nanoTime();
-		searchMoves = EuclideanAStarSearch();
-		endTime = System.nanoTime();
+		//startTime = System.nanoTime();
+		searchResults = EuclideanAStarSearch(mazeGrid);
+		//endTime = System.nanoTime();
 		//System.out.println("Euclidean A* Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
-		if(searchMoves != 0) {
-			searchResults.put("EucliMazeSearchMoves", String.valueOf(searchMoves));
-			searchResults.put("EucliMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
-		}
 		//System.out.println("################################## Euclidean A* Search ##################################");
-		
+
 		return searchResults;
-	}
-	public static void createMaze(int dim, double p){
-		maxMoves = dim*dim;
-		maze = new int[dim][dim];
+	}*/
+	
+	
+	public int[][] createMaze(int dim, double p){
+		int[][] maze = new int[dim][dim];
 		for (int i=0; i<dim; i++){
 			for (int j=0; j<dim; j++){
 				if ((i==0 && j==0) || (i==dim-1 && j==dim-1)){
@@ -101,9 +84,11 @@ public class Mazerunner{
 				maze[i][j] = occupied;
 			}
 		}
+
+		return maze;
 	}
 	
-	public static void printMaze(int[][] maze){
+	public void printMaze(int[][] maze){
 		if (maze == null){
 			return;
 		}
@@ -128,7 +113,7 @@ public class Mazerunner{
 		//System.out.println();
 	}
 	
-	public static int[][] copyMaze(int[][] maze){
+	public int[][] copyMaze(int[][] maze){
 		int[][] newMaze = new int[maze.length][maze.length];
 		for (int i=0; i<maze.length; i++){
 			for (int j=0; j<maze[0].length; j++){
@@ -138,14 +123,16 @@ public class Mazerunner{
 		return newMaze;
 	}
 	
-	public static int DFSMazeSearch(){
-		int[][] DFSMaze = copyMaze(maze);
-		int dim = maze.length;
+	public HashMap<String,String> DFSMazeSearch(int[][] DFSMaze){
+		long startTime = System.nanoTime();
+		HashMap<String,String> dfsMap = new HashMap<String, String>();
+		int dim = DFSMaze.length;
+		int	maxMoves = dim*dim;
 		HashMap<String,String> parentMap = new HashMap<String, String>();
 		boolean[][] visited = new boolean[dim][dim];
 		Stack<int[]> stack = new Stack<int[]>();
 		
-		int i=0, j=0, currentMove=1;
+		int i=0, j=0, currentMove=1, maxQueueSize=0;
 		visited[0][0] = true;
 		DFSMaze[0][0] = 0;
 		
@@ -222,29 +209,40 @@ public class Mazerunner{
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			
+			if(maxQueueSize < stack.size())
+				maxQueueSize = stack.size();
 		};
 		
-		if(!(i==dim-1 && j==dim-1))
-			return 0;
-		/*if(!(i==dim-1 && j==dim-1)){
-			System.out.println("No solution found.");
+		if(!(i==dim-1 && j==dim-1)){
+			//System.out.println("No solution found.");
 		} else{
-			printSoln(parentMap,dim);
+			String solution = getSoln(parentMap,dim);
+			//System.out.println("Solution Found :: "+solution);
+			dfsMap.put("DFSMazeSearchSoln",solution);
+			dfsMap.put("DFSMazePathLen",String.valueOf(pathLen));
 		}
-		printMaze(DFSMaze);
-		System.out.println("Number of moves searched: " + currentMove);
-		*/
-		return currentMove;
+		//printMaze(DFSMaze);
+		//System.out.println("Number of moves searched: " + currentMove);
+		
+		dfsMap.put("DFSMazeMaxFringe",String.valueOf(maxQueueSize));
+		long endTime = System.nanoTime();
+		if(i==dim-1 && j==dim-1){
+			dfsMap.put("DFSMazeSearchMoves", String.valueOf(currentMove));
+			dfsMap.put("DFSMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
+		}
+		return dfsMap;
 	}
 
-	public static int BFSMazeSearch(){
-		int[][] BFSMaze = copyMaze(maze);
-		int dim = maze.length;
+	public HashMap<String,String> BFSMazeSearch(int[][] BFSMaze){
+		long startTime = System.nanoTime();
+		HashMap<String,String> bfsMap = new HashMap<String, String>();
+		int dim = BFSMaze.length;
+		int	maxMoves = dim*dim;
 		HashMap<String,String> parentMap = new HashMap<String, String>();
 		boolean[][] visited = new boolean[dim][dim];
 		Queue<int[]> queue = new LinkedList<int[]>();
 		
-		int i=0, j=0, currentMove=1;
+		int i=0, j=0, currentMove=1, maxQueueSize=0;
 		visited[0][0] = true;
 		BFSMaze[0][0] = 0;
 		
@@ -320,30 +318,41 @@ public class Mazerunner{
 				queue.add(temp);
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
-			
+
+			if(maxQueueSize < queue.size())
+				maxQueueSize = queue.size();
 		};
 		
-		if(!(i==dim-1 && j==dim-1))
-			return 0;
-		/*if(!(i==dim-1 && j==dim-1)){
-			System.out.println("No solution found.");
+		if(!(i==dim-1 && j==dim-1)){
+			//System.out.println("No solution found.");
 		} else{
-			printSoln(parentMap,dim);
+			String solution = getSoln(parentMap,dim);
+			//System.out.println("Solution Found :: "+solution);
+			bfsMap.put("BFSMazeSearchSoln",solution);
+			bfsMap.put("BFSMazePathLen",String.valueOf(pathLen));
 		}
-		printMaze(BFSMaze);
-		System.out.println("Number of moves searched: " + currentMove);
-		*/
-		return currentMove;
+		//printMaze(BFSMaze);
+		//System.out.println("Number of moves searched: " + currentMove);
+		
+		bfsMap.put("BFSMazeMaxFringe",String.valueOf(maxQueueSize));
+		long endTime = System.nanoTime();
+		if(i==dim-1 && j==dim-1){
+			bfsMap.put("BFSMazeSearchMoves", String.valueOf(currentMove));
+			bfsMap.put("BFSMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
+		}
+		return bfsMap;
 	}
 	
-	public static int ManhattanAStarSearch(){
-		int[][] manhattanMaze = copyMaze(maze);
-		int dim = maze.length;
+	public HashMap<String,String> ManhattanAStarSearch(int[][] manhattanMaze){
+		long startTime = System.nanoTime();
+		HashMap<String,String> manhatMap = new HashMap<String, String>();
+		int dim = manhattanMaze.length;
+		int	maxMoves = dim*dim;
 		HashMap<String,String> parentMap = new HashMap<String, String>();
 		boolean[][] visited = new boolean[dim][dim];
 		PriorityQueue<GridDetails> queue = new PriorityQueue<GridDetails>();
 		
-		int i=0, j=0, currentMove=1;
+		int i=0, j=0, currentMove=1, maxQueueSize=0;
 		visited[0][0] = true;
 		manhattanMaze[0][0] = 0;
 		
@@ -393,30 +402,41 @@ public class Mazerunner{
 				queue.add(new GridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),manhattanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
-			
+
+			if(maxQueueSize < queue.size())
+				maxQueueSize = queue.size();
 		};
 		
-		if(!(i==dim-1 && j==dim-1))
-			return 0;		
-		/*if(!(i==dim-1 && j==dim-1)){
-			System.out.println("No solution found.");
+		if(!(i==dim-1 && j==dim-1)){
+			//System.out.println("No solution found.");
 		} else{
-			printSoln(parentMap,dim);
+			String solution = getSoln(parentMap,dim);
+			//System.out.println("Solution Found :: "+solution);
+			manhatMap.put("ManhatMazeSearchSoln",solution);
+			manhatMap.put("ManhatMazePathLen",String.valueOf(pathLen));
 		}
-		printMaze(manhattanMaze);
-		System.out.println("Number of moves searched: " + currentMove);
-	*/	
-		return currentMove;
+		//printMaze(manhattanMaze);
+		//System.out.println("Number of moves searched: " + currentMove);	
+		manhatMap.put("ManhatMazeMaxFringe",String.valueOf(maxQueueSize));
+		long endTime = System.nanoTime();
+		
+		if(i==dim-1 && j==dim-1){
+			manhatMap.put("ManhatMazeSearchMoves", String.valueOf(currentMove));
+			manhatMap.put("ManhatMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
+		}
+		return manhatMap;
 	}
 	
-	public static int EuclideanAStarSearch(){
-		int[][] euclideanMaze = copyMaze(maze);
-		int dim = maze.length;
+	public HashMap<String,String> EuclideanAStarSearch(int[][] euclideanMaze){
+		long startTime = System.nanoTime();
+		int dim = euclideanMaze.length;
+		int	maxMoves = dim*dim;
+		HashMap<String,String> eucliMap = new HashMap<String, String>();
 		HashMap<String,String> parentMap = new HashMap<String, String>();
 		boolean[][] visited = new boolean[dim][dim];
 		PriorityQueue<GridDetails> pQueue = new PriorityQueue<GridDetails>();
 		
-		int i=0, j=0, currentMove=1;
+		int i=0, j=0, currentMove=1, maxQueueSize=0;
 		visited[0][0] = true;
 		euclideanMaze[0][0] = 0;
 		
@@ -468,25 +488,34 @@ public class Mazerunner{
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			
+			if(maxQueueSize < pQueue.size())
+				maxQueueSize = pQueue.size();
+			
 		};
 		
 		//System.out.println(i + ", " + j);
 		//System.out.println("" + pQueue.isEmpty());
-	/*	if(!(i==dim-1 && j==dim-1)){
-			System.out.println("No solution found.");
+		if(!(i==dim-1 && j==dim-1)){
+			//System.out.println("No solution found.");
 		} else{
-			printSoln(parentMap,dim);
+			String solution = getSoln(parentMap,dim);
+			//System.out.println("Solution Found :: "+solution);
+			eucliMap.put("EucliMazeSearchSoln",solution);
+			eucliMap.put("EucliMazePathLen",String.valueOf(pathLen));
 		}
-		printMaze(euclideanMaze);
-		System.out.println("Number of moves searched: " + currentMove);
-	*/	
-		if(!(i==dim-1 && j==dim-1))
-			return 0;
+		//printMaze(euclideanMaze);
+		//System.out.println("Number of moves searched: " + currentMove);
+		eucliMap.put("EucliMazeMaxFringe",String.valueOf(maxQueueSize));
+		long endTime = System.nanoTime();
+		if(i==dim-1 && j==dim-1){
+			eucliMap.put("EucliMazeSearchMoves", String.valueOf(currentMove));
+			eucliMap.put("EucliMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
+		}
 		
-		return currentMove;
+		return eucliMap;
 	}
 	
-	public static void printSoln(HashMap<String,String> parentMap, int dim){
+	public String getSoln(HashMap<String,String> parentMap, int dim){
 		ArrayList<String> pathArr = new ArrayList<String>();
 		String key=String.valueOf(dim-1)+"-"+String.valueOf(dim-1);
 		while(!parentMap.isEmpty()){
@@ -499,20 +528,21 @@ public class Mazerunner{
 				parentMap.clear();
 			}
 		}
-		
-		System.out.println();
-		System.out.println("************* Path from Start to Goal *************");
-		System.out.println();
+		pathLen = pathArr.size();
+		StringBuffer str = new StringBuffer();
 		for(int a=pathArr.size()-1;a>=0;a--){
-			System.out.print(pathArr.get(a)+" , ");
+			str.append(pathArr.get(a));
+			str.append(" , ");
 		}
-		System.out.println(String.valueOf(dim-1)+"-"+String.valueOf(dim-1));
-		System.out.println();
-		System.out.println("************* Path from Start to Goal *************");
-		System.out.println();
+		str.append(String.valueOf(dim-1));
+		str.append("-");
+		str.append(String.valueOf(dim-1));
+		
+		return str.toString();
+		
 	}
 	
-	public static double eucliDist(int row, int col, int dim){
+	public double eucliDist(int row, int col, int dim){
 		return (Math.sqrt(Math.pow((dim-row-1), 2)+Math.pow((dim-col-1), 2)));
 	}
 	
