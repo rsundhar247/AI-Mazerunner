@@ -96,7 +96,7 @@ public class Mazerunner{
 				} else {
 					occupied = 0;
 				}
-				
+				maze[0][0] = 0;
 				maze[i][j] = occupied;
 			}
 		}
@@ -143,7 +143,6 @@ public class Mazerunner{
 		
 		int i=0, j=0, currentMove=1;
 		visited[0][0] = true;
-		DFSMaze[0][0] = 0;
 		
 		if (DFSMaze[i+1][j] == 0){
 			int[] temp = new int[3];
@@ -246,7 +245,6 @@ public class Mazerunner{
 		
 		int i=0, j=0, currentMove=1;
 		visited[0][0] = true;
-		BFSMaze[0][0] = 0;
 		
 		if (BFSMaze[i+1][j] == 0){
 			int[] temp = new int[3];
@@ -349,7 +347,6 @@ public class Mazerunner{
 		
 		int i=0, j=0, currentMove=1;
 		visited[0][0] = true;
-		manhattanMaze[0][0] = 0;
 		
 		if (manhattanMaze[i+1][j] == 0){
 			queue.add(new GridDetails(i+1,j,(dim-1-(i+1)) + (dim-1-j), 1));
@@ -426,7 +423,6 @@ public class Mazerunner{
 		
 		int i=0, j=0, currentMove=1;
 		visited[0][0] = true;
-		euclideanMaze[0][0] = 0;
 		
 		if (euclideanMaze[i+1][j] == 0){
 			pQueue.add(new GridDetails(i+1,j,eucliDist(i+1,j,dim), 1));
