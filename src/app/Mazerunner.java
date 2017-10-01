@@ -18,7 +18,7 @@ public class Mazerunner{
 	public static void main(String args[]){
 		solutionsFound = 0;
 		int dimension = 5000;
-		double p = 0.1;
+		double p = 0.35;
 		
 		while (solutionsFound == 0 && mazesBuilt < 10000){ //runs until a solution is found, 10000 trials
 		mazesBuilt ++;
@@ -33,7 +33,7 @@ public class Mazerunner{
 //		System.out.println();
 //		System.out.println();
 //		
-//		System.out.println("Attempt #: " + mazesBuilt);
+		System.out.println("Attempt #: " + mazesBuilt);
 //		System.out.println("################################## DFS Search ##################################");
 //		startTime = System.currentTimeMillis();
 //		DFSMazeSearch();
@@ -47,15 +47,15 @@ public class Mazerunner{
 //		
 //		System.out.println();
 //		System.out.println();
-		
-		System.out.println("################################## BFS Search ##################################");
-		startTime = System.nanoTime();
-		BFSMazeSearch();
-		endTime = System.nanoTime();
-		System.out.println("Total # of Solutions found: " + solutionsFound);
-		System.out.println("BFS Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
-		System.out.println("################################## BFS Search ##################################");
-		
+//		
+//		System.out.println("################################## BFS Search ##################################");
+//		startTime = System.nanoTime();
+//		BFSMazeSearch();
+//		endTime = System.nanoTime();
+//		System.out.println("Total # of Solutions found: " + solutionsFound);
+//		System.out.println("BFS Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
+//		System.out.println("################################## BFS Search ##################################");
+//		
 //		System.out.println();
 //		System.out.println();
 //		
@@ -69,19 +69,19 @@ public class Mazerunner{
 //		System.out.println();
 //		System.out.println();
 //		
-//		System.out.println("################################## Euclidean A* Search ##################################");
-//		startTime = System.nanoTime();
-//		EuclideanAStarSearch();
-//		endTime = System.nanoTime();
-//		System.out.println("Euclidean A* Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
-//		System.out.println("################################## Euclidean A* Search ##################################");
+		System.out.println("################################## Euclidean A* Search ##################################");
+		startTime = System.nanoTime();
+		EuclideanAStarSearch();
+		endTime = System.nanoTime();
+		System.out.println("Euclidean A* Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
+		System.out.println("################################## Euclidean A* Search ##################################");
 		
 		}
 		
 	}
 	public static void createMaze(int dim, double p){
 		//maxMoves = (int)((1-p)*(dim*dim));
-		maxMoves = 20000000; //15000000 for dfs, 30000000 for bfs
+		maxMoves = 15000000; //15000000 for dfs, 15000000 for bfs, 12000000 for a*
 		maze = new int[dim][dim];
 		for (int i=0; i<dim; i++){
 			for (int j=0; j<dim; j++){
@@ -332,7 +332,7 @@ public class Mazerunner{
 			System.out.println("No solution found.");
 		} else{
 			System.out.println("Solution found.");
-			solutionsFound++;			
+			solutionsFound++;
 			//printSoln(parentMap,dim);
 		}
 		//printMaze(BFSMaze);
