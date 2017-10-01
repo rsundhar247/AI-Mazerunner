@@ -27,6 +27,10 @@ public class SearchAutomation {
 		String[] bfsMoves = new String[numOfTimes];
 		String[] manhatMoves = new String[numOfTimes];
 		String[] eucliMoves = new String[numOfTimes];
+		String[] dfsFringe = new String[numOfTimes];
+		String[] bfsFringe = new String[numOfTimes];
+		String[] manhatFringe = new String[numOfTimes];
+		String[] eucliFringe = new String[numOfTimes];
 		
 		Mazerunner maze = new Mazerunner();
 		mazeGrid = new int[dimension][dimension];
@@ -35,9 +39,10 @@ public class SearchAutomation {
 		for(int i=0;i<numOfTimes;) {
 			mazeGrid = maze.createMaze(dimension, prob);
 			searchResults = maze.DFSMazeSearch(mazeGrid);
-			if(searchResults.containsKey("DFSMazeSearchTime") && searchResults.containsKey("DFSMazeSearchMoves")) {
+			if(searchResults.containsKey("DFSMazeSearchTime") && searchResults.containsKey("DFSMazeSearchMoves") && searchResults.containsKey("DFSMazeMaxFringe")) {
 				dfsTime[i] = searchResults.get("DFSMazeSearchTime");
 				dfsMoves[i] = searchResults.get("DFSMazeSearchMoves");
+				dfsFringe[i] = searchResults.get("DFSMazeMaxFringe");
 				i++;
 			}
 		}
@@ -45,9 +50,10 @@ public class SearchAutomation {
 		for(int i=0;i<numOfTimes;) {
 			mazeGrid = maze.createMaze(dimension, prob);
 			searchResults = maze.BFSMazeSearch(mazeGrid);
-			if(searchResults.containsKey("BFSMazeSearchTime") && searchResults.containsKey("BFSMazeSearchMoves")) {
+			if(searchResults.containsKey("BFSMazeSearchTime") && searchResults.containsKey("BFSMazeSearchMoves") && searchResults.containsKey("BFSMazeMaxFringe")) {
 				bfsTime[i] = searchResults.get("BFSMazeSearchTime");
 				bfsMoves[i] = searchResults.get("BFSMazeSearchMoves");
+				bfsFringe[i] = searchResults.get("BFSMazeMaxFringe");
 				i++;
 			}
 		}
@@ -55,9 +61,10 @@ public class SearchAutomation {
 		for(int i=0;i<numOfTimes;) {
 			mazeGrid = maze.createMaze(dimension, prob);
 			searchResults = maze.ManhattanAStarSearch(mazeGrid);
-			if(searchResults.containsKey("ManhatMazeSearchTime") && searchResults.containsKey("ManhatMazeSearchMoves")) {
+			if(searchResults.containsKey("ManhatMazeSearchTime") && searchResults.containsKey("ManhatMazeSearchMoves") && searchResults.containsKey("ManhatMazeMaxFringe")) {
 				manhatTime[i] = searchResults.get("ManhatMazeSearchTime");
 				manhatMoves[i] = searchResults.get("ManhatMazeSearchMoves");
+				manhatFringe[i] = searchResults.get("ManhatMazeMaxFringe");
 				i++;
 			}
 		}
@@ -65,9 +72,10 @@ public class SearchAutomation {
 		for(int i=0;i<numOfTimes;) {
 			mazeGrid = maze.createMaze(dimension, prob);
 			searchResults = maze.EuclideanAStarSearch(mazeGrid);
-			if(searchResults.containsKey("EucliMazeSearchTime") && searchResults.containsKey("EucliMazeSearchMoves")) {
+			if(searchResults.containsKey("EucliMazeSearchTime") && searchResults.containsKey("EucliMazeSearchMoves") && searchResults.containsKey("EucliMazeMaxFringe")) {
 				eucliTime[i] = searchResults.get("EucliMazeSearchTime");
 				eucliMoves[i] = searchResults.get("EucliMazeSearchMoves");
+				eucliFringe[i] = searchResults.get("EucliMazeMaxFringe");
 				i++;
 			}
 		}
@@ -84,6 +92,12 @@ public class SearchAutomation {
 		}
 		System.out.println();
 		
+		System.out.println("DFS MaxFringe :: ");
+		for(int i=0;i<numOfTimes;i++){
+			System.out.print(dfsFringe[i]+" , ");
+		}
+		System.out.println();		
+		
 		System.out.println("BFS Time :: ");
 		for(int i=0;i<numOfTimes;i++){
 			System.out.print(bfsTime[i]+" , ");
@@ -93,6 +107,12 @@ public class SearchAutomation {
 		System.out.println("BFS Moves :: ");
 		for(int i=0;i<numOfTimes;i++){
 			System.out.print(bfsMoves[i]+" , ");
+		}
+		System.out.println();
+		
+		System.out.println("BFS MaxFringe :: ");
+		for(int i=0;i<numOfTimes;i++){
+			System.out.print(bfsFringe[i]+" , ");
 		}
 		System.out.println();
 		
@@ -108,6 +128,12 @@ public class SearchAutomation {
 		}
 		System.out.println();
 		
+		System.out.println("Manhat MaxFringe :: ");
+		for(int i=0;i<numOfTimes;i++){
+			System.out.print(manhatFringe[i]+" , ");
+		}
+		System.out.println();
+		
 		System.out.println("Eucli Times :: ");
 		for(int i=0;i<numOfTimes;i++){
 			System.out.print(eucliTime[i]+" , ");
@@ -118,6 +144,13 @@ public class SearchAutomation {
 		for(int i=0;i<numOfTimes;i++){
 			System.out.print(eucliMoves[i]+" , ");
 		}
+		System.out.println();
+		
+		System.out.println("Eucli MaxFringe :: ");
+		for(int i=0;i<numOfTimes;i++){
+			System.out.print(eucliFringe[i]+" , ");
+		}
+		System.out.println();
 		//System.out.println(searchResults);
 	}
 	
@@ -199,13 +232,17 @@ public class SearchAutomation {
 			}
 		}
 		
-		Random rand = new Random();
-		int i = rand.nextInt(dimension-1);
-		int j = rand.nextInt(dimension-1);
-		if(mutatedMaze[i][j] == 0)
-			mutatedMaze[i][j] = -1;
-		else
-			mutatedMaze[i][j] = 0;
+		for (int count = 0; count<dimension; count++){
+			Random rand = new Random();
+			int i = rand.nextInt(dimension-1);
+			int j = rand.nextInt(dimension-1);
+			if (!(i==0&&j==0) && !(i==dimension-1&&j==dimension-1)){
+				if(mutatedMaze[i][j] == 0)
+					mutatedMaze[i][j] = -1;
+				else
+					mutatedMaze[i][j] = 0;
+			}
+		}
 		
 
 		Mazerunner maze = new Mazerunner();
@@ -227,24 +264,28 @@ public class SearchAutomation {
 		int[][] mutatedMazeCopy = new int[dimension][dimension];
 		HashMap<String,String> searchResult = new HashMap<String,String>();
 		
-		for(int i=0;i<3;i++) {
+		for(int i=0;i<(dimension/2);i++) {
 			for(int j=0; j<dimension; j++) {
 				mutatedMaze[i][j] = mazeOne[i][j];
 			}
 		}
-		for(int i=3;i<dimension;i++) {
+		for(int i=(dimension/2);i<dimension;i++) {
 			for(int j=0; j<dimension;j++) {
 				mutatedMaze[i][j] = mazeTwo[i][j];
 			}
 		}
 		
-		Random rand = new Random();
-		int i = rand.nextInt(dimension-1);
-		int j = rand.nextInt(dimension-1);
-		if(mutatedMaze[i][j] == 0)
-			mutatedMaze[i][j] = -1;
-		else
-			mutatedMaze[i][j] = 0;
+		for (int count = 0; count<dimension; count++){
+			Random rand = new Random();
+			int i = rand.nextInt(dimension-1);
+			int j = rand.nextInt(dimension-1);
+			if (!(i==0&&j==0) && !(i==dimension-1&&j==dimension-1)){
+				if(mutatedMaze[i][j] == 0)
+					mutatedMaze[i][j] = -1;
+				else
+					mutatedMaze[i][j] = 0;
+			}
+		}
 
 		Mazerunner maze = new Mazerunner();
 		mutatedMazeCopy = maze.copyMaze(mutatedMaze);
@@ -266,23 +307,28 @@ public class SearchAutomation {
 		HashMap<String,String> searchResult = new HashMap<String,String>();
 		
 		for(int i=0;i<dimension;i++) {
-			for(int j=0; j<3; j++) {
+			for(int j=0; j<(dimension/2); j++) {
 				mutatedMaze[i][j] = mazeOne[i][j];
 			}
 		}
 		for(int i=0;i<dimension;i++) {
-			for(int j=3; j<dimension;j++) {
+			for(int j=(dimension/2); j<dimension;j++) {
 				mutatedMaze[i][j] = mazeTwo[i][j];
 			}
 		}
 		
-		Random rand = new Random();
-		int i = rand.nextInt(dimension-1);
-		int j = rand.nextInt(dimension-1);
-		if(mutatedMaze[i][j] == 0)
-			mutatedMaze[i][j] = -1;
-		else
-			mutatedMaze[i][j] = 0;
+		for (int count = 0; count<dimension; count++){
+			Random rand = new Random();
+			int i = rand.nextInt(dimension-1);
+			int j = rand.nextInt(dimension-1);
+			if (!(i==0&&j==0) && !(i==dimension-1&&j==dimension-1)){
+				if(mutatedMaze[i][j] == 0)
+					mutatedMaze[i][j] = -1;
+				else
+					mutatedMaze[i][j] = 0;
+			}
+			
+		}
 
 		Mazerunner maze = new Mazerunner();
 		mutatedMazeCopy = maze.copyMaze(mutatedMaze);
@@ -299,7 +345,7 @@ public class SearchAutomation {
 	}
 	
 	public static double buildMazeHeuristic(String pathLen, String nodes, String fringe){
-		double heuristic = (0.25*Double.parseDouble(pathLen))+(0.25*Double.parseDouble(nodes))+(0.25*Double.parseDouble(fringe));
+		double heuristic = (0.25*Double.parseDouble(pathLen))+(0.25*Double.parseDouble(nodes))+(0.5*Double.parseDouble(fringe));
 		return heuristic;
 	}
 }
