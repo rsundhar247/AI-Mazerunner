@@ -17,13 +17,8 @@ import java.util.Random;
 
 public class SearchAutomation {
 	
-<<<<<<< HEAD
-	static int dimension = 50;
-	static double prob = 0.35;
-=======
 	static int dimension = 15; //Dimension of the maze
 	static double prob = 0.35; //Probability with which the maze is to be generated
->>>>>>> 930cc40f54b1e1e8b7da469f8bc209b5b4d42b9f
 	
 	public static void main(String args[]){
 		
