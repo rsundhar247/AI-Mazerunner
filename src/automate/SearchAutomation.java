@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class SearchAutomation {
 	
-	static int dimension = 15;
+	static int dimension = 50;
 	static double prob = 0.35;
 	
 	public static void main(String args[]){
