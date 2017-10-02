@@ -1,5 +1,9 @@
 package app;
 
+/*
+ * Comparable Class for a cell in a maze that stores a calculated heuristic distance to the destination
+ * as well as the true distance to the cell from the origin
+ */
 public class GridDetails implements Comparable<GridDetails> {
 
 	private int row;
