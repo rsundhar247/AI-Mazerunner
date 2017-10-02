@@ -1,4 +1,19 @@
+/*
+================================================================================================================
+Project - Mazerunner
+
+This class generates a random maze based on the given dimension and probability. DFS, BFS, A* Manhattan distance 
+and A* Euclidean distance algorithms are used to calculate the optimal path from start to goal.
+createMaze function creates maze based on the dimension and probability
+printMaze function prints the input maze
+DFSMazeSearch, BFSMazeSearch, ManhatMazeSearch, EucliMazeSearch function does DFS, BFS, A* Manhattan 
+and A* Euclidean searches respectively
+getSoln function backtracks from goal node, the shortest path from start to goal 
+================================================================================================================
+*/
+
 package automate;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -6,65 +21,16 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
 
-
-
 public class Mazerunner{
-	
 	static int pathLen = 0;
-		
-	/*public HashMap<String,String> gridSearch(int dim){
-		int dimension = dim;
-		double p = 0.3;
-		HashMap<String,String> searchResults = new HashMap<String,String>();
-		
-		int[][] mazeGrid = createMaze(dimension, p);
-		//System.out.println("Original Maze: ");
-		//printMaze(maze);
-		
-		//System.out.println();
-		//System.out.println();
-		
-		//System.out.println("################################## DFS Search ##################################");
-		//long startTime = System.nanoTime();
-		searchResults = DFSMazeSearch(mazeGrid);
-		//long endTime = System.nanoTime();
-		//System.out.println("DFS Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
-		//System.out.println("################################## DFS Search ##################################");
-		
-		//System.out.println();
-		//System.out.println();
-		
-		//System.out.println("################################## BFS Search ##################################");
-		//startTime = System.nanoTime();
-		searchResults = BFSMazeSearch(mazeGrid);
-		//endTime = System.nanoTime();
-		//System.out.println("BFS Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
-		//System.out.println("################################## BFS Search ##################################");
-		
-		//System.out.println();
-		//System.out.println();
-		
-		//System.out.println("################################## Manhattan A* Search ##################################");
-		//startTime = System.nanoTime();
-		searchResults = ManhattanAStarSearch(mazeGrid);
-		//endTime = System.nanoTime();
-		//System.out.println("Manhattan A* Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
-		//System.out.println("################################## Manhattan A* Search ##################################");
-		
-		//System.out.println();
-		//System.out.println();
-		
-		//System.out.println("################################## Euclidean A* Search ##################################");
-		//startTime = System.nanoTime();
-		searchResults = EuclideanAStarSearch(mazeGrid);
-		//endTime = System.nanoTime();
-		//System.out.println("Euclidean A* Search Took " + (0.000001)*(endTime - startTime) + " ms"); 
-		//System.out.println("################################## Euclidean A* Search ##################################");
-
-		return searchResults;
-	}*/
 	
-	
+	/*
+	 * 
+	 * This method creates a new maze based on the input dimension and the probability
+	 * Input parameters - dim, p
+	 * Return - maze
+	 * 
+	 */
 	public int[][] createMaze(int dim, double p){
 		int[][] maze = new int[dim][dim];
 		for (int i=0; i<dim; i++){
@@ -84,10 +50,16 @@ public class Mazerunner{
 				maze[i][j] = occupied;
 			}
 		}
-		maze[0][0] = 0;
+
 		return maze;
 	}
 	
+	/*
+	 * 
+	 * This method prints the maze passed as input parameter
+	 * Input - maze to be printed
+	 * 
+	 */
 	public void printMaze(int[][] maze){
 		if (maze == null){
 			return;
@@ -110,9 +82,16 @@ public class Mazerunner{
 				}
 			}
 		}
-		//System.out.println();
+		System.out.println();
 	}
 	
+	/*
+	 * 
+	 * This method makes a copy of the input maze
+	 * Input - Maze to be copied
+	 * Return - Maze Copy
+	 * 
+	 */
 	public int[][] copyMaze(int[][] maze){
 		int[][] newMaze = new int[maze.length][maze.length];
 		for (int i=0; i<maze.length; i++){
@@ -123,6 +102,13 @@ public class Mazerunner{
 		return newMaze;
 	}
 	
+	/*
+	 * 
+	 * This method runs DFS Search on the maze passed as input parameter and returns a HashMap with time taken, nodes covered, Max Fringe size
+	 * Input - Maze
+	 * Output - HashMap with time taken, nodes covered, Max Fringe size
+	 * 
+	 */
 	public HashMap<String,String> DFSMazeSearch(int[][] DFSMaze){
 		long startTime = System.nanoTime();
 		HashMap<String,String> dfsMap = new HashMap<String, String>();
@@ -132,8 +118,9 @@ public class Mazerunner{
 		boolean[][] visited = new boolean[dim][dim];
 		Stack<int[]> stack = new Stack<int[]>();
 		
-		int i=0, j=0, currentMove=1, maxQueueSize=0;
+		int i=0, j=0, currentMove=1, maxStackSize=0;
 		visited[0][0] = true;
+		DFSMaze[0][0] = 0;
 		
 		if (DFSMaze[i+1][j] == 0){
 			int[] temp = new int[3];
@@ -141,7 +128,8 @@ public class Mazerunner{
 			temp[1] = j;
 			temp[2] = 1; //path length to this move, first move so =1
 			stack.push(temp);
-			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
+			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j)); /* All the nodes added to the stack for exploration 
+																				are added to this map, so that the shortest path can be backtracked from the goal node */
 		}
 		if (DFSMaze[i][j+1] == 0){
 			int[] temp = new int[3];
@@ -152,10 +140,11 @@ public class Mazerunner{
 			parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 		}
 		
-		while (!(i == (dim-1) && j == (dim-1)) && currentMove<maxMoves && !stack.isEmpty()) {
+		while (!(i == (dim-1) && j == (dim-1)) && currentMove<maxMoves && !stack.isEmpty()) { // Loop till the goal node is reached or until no more nodes are available to explore
 			int x, y;
 			int[] current;
-			do {current = stack.pop();
+			do {
+			current = stack.pop();
 			x = current[0];
 			y = current[1];
 			} while (visited[x][y]==true && !stack.isEmpty());
@@ -172,7 +161,6 @@ public class Mazerunner{
 			currentMove++;
 			
 			if ((j-1) >= 0 && DFSMaze[i][j-1]==0 && visited[i][j-1]==false){
-				//System.out.println(i + ", " + (j-1));
 				int[] temp = new int[3];
 				temp[0] = i;
 				temp[1] = j-1;
@@ -181,7 +169,6 @@ public class Mazerunner{
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i-1) >= 0 && DFSMaze[i-1][j]==0 && visited[i-1][j]==false){
-				//System.out.println((i-1) + ", " + (j));
 				int[] temp = new int[3];
 				temp[0] = i-1;
 				temp[1] = j;
@@ -190,7 +177,6 @@ public class Mazerunner{
 				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i+1) < dim && DFSMaze[i+1][j]==0 && visited[i+1][j]==false){
-				//System.out.println((i+1) + ", " + j);
 				int[] temp = new int[3];
 				temp[0] = i+1;
 				temp[1] = j;
@@ -199,7 +185,6 @@ public class Mazerunner{
 				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((j+1) < dim && DFSMaze[i][j+1]==0 && visited[i][j+1]==false){
-				//System.out.println(i + ", " + (j+1));
 				int[] temp = new int[3];
 				temp[0] = i;
 				temp[1] = j+1;
@@ -208,8 +193,8 @@ public class Mazerunner{
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			
-			if(maxQueueSize < stack.size())
-				maxQueueSize = stack.size();
+			if(maxStackSize < stack.size())
+				maxStackSize = stack.size();
 		};
 		
 		if(!(i==dim-1 && j==dim-1)){
@@ -217,21 +202,28 @@ public class Mazerunner{
 		} else{
 			String solution = getSoln(parentMap,dim);
 			//System.out.println("Solution Found :: "+solution);
-			dfsMap.put("DFSMazeSearchSoln",solution);
-			dfsMap.put("DFSMazePathLen",String.valueOf(pathLen));
+			dfsMap.put("DFSMazeSearchSoln",solution); // Nodes of the shortest path from Start to Goal
+			dfsMap.put("DFSMazePathLen",String.valueOf(pathLen)); // Shortest path length
 		}
 		//printMaze(DFSMaze);
 		//System.out.println("Number of moves searched: " + currentMove);
 		
-		dfsMap.put("DFSMazeMaxFringe",String.valueOf(maxQueueSize));
+		dfsMap.put("DFSMazeMaxFringe",String.valueOf(maxStackSize)); // Maximum Fringe size at any stage of the search
 		long endTime = System.nanoTime();
 		if(i==dim-1 && j==dim-1){
-			dfsMap.put("DFSMazeSearchMoves", String.valueOf(currentMove));
-			dfsMap.put("DFSMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
+			dfsMap.put("DFSMazeSearchMoves", String.valueOf(currentMove)); // Total number of nodes explored
+			dfsMap.put("DFSMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime))); // Time taken for the search algorithm to run
 		}
 		return dfsMap;
 	}
 
+	/*
+	 * 
+	 * This method runs BFS Search on the maze passed as input parameter and returns a HashMap with time taken, nodes covered, Max Fringe size
+	 * Input - Maze
+	 * Output - HashMap with time taken, nodes covered, Max Fringe size
+	 * 
+	 */
 	public HashMap<String,String> BFSMazeSearch(int[][] BFSMaze){
 		long startTime = System.nanoTime();
 		HashMap<String,String> bfsMap = new HashMap<String, String>();
@@ -243,6 +235,7 @@ public class Mazerunner{
 		
 		int i=0, j=0, currentMove=1, maxQueueSize=0;
 		visited[0][0] = true;
+		BFSMaze[0][0] = 0;
 		
 		if (BFSMaze[i+1][j] == 0){
 			int[] temp = new int[3];
@@ -281,7 +274,6 @@ public class Mazerunner{
 			currentMove++;
 			
 			if ((j-1) >= 0 && BFSMaze[i][j-1]==0 && visited[i][j-1]==false){
-				//System.out.println(i + ", " + (j-1));
 				int[] temp = new int[3];
 				temp[0] = i;
 				temp[1] = j-1;
@@ -290,7 +282,6 @@ public class Mazerunner{
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i-1) >= 0 && BFSMaze[i-1][j]==0 && visited[i-1][j]==false){
-				//System.out.println((i-1) + ", " + (j));
 				int[] temp = new int[3];
 				temp[0] = i-1;
 				temp[1] = j;
@@ -299,7 +290,6 @@ public class Mazerunner{
 				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i+1) < dim && BFSMaze[i+1][j]==0 && visited[i+1][j]==false){
-				//System.out.println((i+1) + ", " + j);
 				int[] temp = new int[3];
 				temp[0] = i+1;
 				temp[1] = j;
@@ -308,7 +298,6 @@ public class Mazerunner{
 				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((j+1) < dim && BFSMaze[i][j+1]==0 && visited[i][j+1]==false){
-				//System.out.println(i + ", " + (j+1));
 				int[] temp = new int[3];
 				temp[0] = i;
 				temp[1] = j+1;
@@ -341,17 +330,25 @@ public class Mazerunner{
 		return bfsMap;
 	}
 	
+	/*
+	 * This method runs A* manhattan Distance Search on the maze passed as input parameter 
+	 *  and returns a HashMap with time taken, nodes covered, Max Fringe size
+	 * Input - Maze
+	 * Output - HashMap with time taken, nodes covered, Max Fringe size
+	 * 
+	 */
 	public HashMap<String,String> ManhattanAStarSearch(int[][] manhattanMaze){
 		long startTime = System.nanoTime();
 		HashMap<String,String> manhatMap = new HashMap<String, String>();
 		int dim = manhattanMaze.length;
 		int	maxMoves = dim*dim;
 		HashMap<String,String> parentMap = new HashMap<String, String>();
-		boolean[][] visited = new boolean[dim][dim];
-		PriorityQueue<GridDetails> queue = new PriorityQueue<GridDetails>();
+		boolean[][] visited = new boolean[dim][dim]; // Maintains a matrix that are visited
+		PriorityQueue<GridDetails> queue = new PriorityQueue<GridDetails>(); // Priority Queue used to sort based on the heuristic value
 		
 		int i=0, j=0, currentMove=1, maxQueueSize=0;
 		visited[0][0] = true;
+		manhattanMaze[0][0] = 0;
 		
 		if (manhattanMaze[i+1][j] == 0){
 			queue.add(new GridDetails(i+1,j,(dim-1-(i+1)) + (dim-1-j), 1));
@@ -378,24 +375,20 @@ public class Mazerunner{
 			i=x;
 			j=y;
 			currentMove++;
-			
+			//Explores the nearby cells and add them to the queue
 			if ((j-1) >= 0 && manhattanMaze[i][j-1]==0 && visited[i][j-1]==false){
-				//System.out.println(i + ", " + (j-1));
 				queue.add(new GridDetails(i,(j-1),((dim-1)-i)+((dim-1)-(j-1)),manhattanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i-1) >= 0 && manhattanMaze[i-1][j]==0 && visited[i-1][j]==false){
-				//System.out.println((i-1) + ", " + (j));
 				queue.add(new GridDetails((i-1),j,((dim-1)-(i-1))+((dim-1)-j),manhattanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i+1) < dim && manhattanMaze[i+1][j]==0 && visited[i+1][j]==false){
-				//System.out.println((i+1) + ", " + j);
 				queue.add(new GridDetails((i+1),j,((dim-1)-(i+1))+((dim-1)-j),manhattanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((j+1) < dim && manhattanMaze[i][j+1]==0 && visited[i][j+1]==false){
-				//System.out.println(i + ", " + (j+1));
 				queue.add(new GridDetails(i,(j+1),((dim-1)-i)+((dim-1)-(j+1)),manhattanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
@@ -424,6 +417,12 @@ public class Mazerunner{
 		return manhatMap;
 	}
 	
+	/*
+	 * This method runs A* euclidean Distance Search on the maze passed as input parameter 
+	 *  and returns a HashMap with time taken, nodes covered, Max Fringe size
+	 * Input - Maze
+	 * Output - HashMap with time taken, nodes covered, Max Fringe size
+	 */
 	public HashMap<String,String> EuclideanAStarSearch(int[][] euclideanMaze){
 		long startTime = System.nanoTime();
 		int dim = euclideanMaze.length;
@@ -435,6 +434,7 @@ public class Mazerunner{
 		
 		int i=0, j=0, currentMove=1, maxQueueSize=0;
 		visited[0][0] = true;
+		euclideanMaze[0][0] = 0;
 		
 		if (euclideanMaze[i+1][j] == 0){
 			pQueue.add(new GridDetails(i+1,j,eucliDist(i+1,j,dim), 1));
@@ -462,24 +462,20 @@ public class Mazerunner{
 			i=x;
 			j=y;
 			currentMove++;
-			
+			//Explores the nearby cells and add them to the queue
 			if ((j-1) >= 0 && euclideanMaze[i][j-1]==0 && visited[i][j-1]==false){
-				//System.out.println(i + ", " + (j-1));
 				pQueue.add(new GridDetails(i,(j-1),eucliDist(i,j-1,dim),euclideanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i-1) >= 0 && euclideanMaze[i-1][j]==0 && visited[i-1][j]==false){
-				//System.out.println((i-1) + ", " + (j));
 				pQueue.add(new GridDetails((i-1),j,eucliDist(i-1,j,dim),euclideanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i+1) < dim && euclideanMaze[i+1][j]==0 && visited[i+1][j]==false){
-				//System.out.println((i+1) + ", " + j);
 				pQueue.add(new GridDetails((i+1),j,eucliDist(i+1,j,dim),euclideanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((j+1) < dim && euclideanMaze[i][j+1]==0 && visited[i][j+1]==false){
-				//System.out.println(i + ", " + (j+1));
 				pQueue.add(new GridDetails(i,(j+1),eucliDist(i,j+1,dim),euclideanMaze[i][j] + 1));
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
@@ -489,8 +485,6 @@ public class Mazerunner{
 			
 		};
 		
-		//System.out.println(i + ", " + j);
-		//System.out.println("" + pQueue.isEmpty());
 		if(!(i==dim-1 && j==dim-1)){
 			//System.out.println("No solution found.");
 		} else{
@@ -511,6 +505,13 @@ public class Mazerunner{
 		return eucliMap;
 	}
 	
+	/*
+	 * 
+	 * This method backtracks the shortest path from goal to start
+	 * Input - parentMap - map with node-parentNode data for all the nodes explored
+	 * Return - Shortest path from Start to Goal
+	 * 
+	 */
 	public String getSoln(HashMap<String,String> parentMap, int dim){
 		ArrayList<String> pathArr = new ArrayList<String>();
 		String key=String.valueOf(dim-1)+"-"+String.valueOf(dim-1);
@@ -538,8 +539,12 @@ public class Mazerunner{
 		
 	}
 	
+	/*
+	 * This method calculates the heuristic for the euclidean distance
+	 * Input - row, col, dim
+	 * Return - Euclidean distance heuristic value
+	 */
 	public double eucliDist(int row, int col, int dim){
 		return (Math.sqrt(Math.pow((dim-row-1), 2)+Math.pow((dim-col-1), 2)));
 	}
-	
 }
