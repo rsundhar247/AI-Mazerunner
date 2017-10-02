@@ -9,6 +9,8 @@ printMaze function prints the input maze
 DFSMazeSearch, BFSMazeSearch, ManhatMazeSearch, EucliMazeSearch function does DFS, BFS, A* Manhattan 
 and A* Euclidean searches respectively
 getSoln function backtracks from goal node, the shortest path from start to goal 
+This function is a copy of the Mazerunner file in src/app, but each method now returns a HashMap<String, String>
+containing the details of its respective search algorithm solution on the map. 
 ================================================================================================================
 */
 
