@@ -398,16 +398,25 @@ public class SearchAutomation {
 		int[][] mutatedMazeCopy = new int[dimension][dimension];
 		HashMap<String,String> searchResult = new HashMap<String,String>();
 		
-		for(int i=0;i<dimension;i++) {
-			for(int j=i; j<dimension; j++) { // Top diagonal of maze1
-				mutatedMaze[i][j] = mazeOne[i][j];
+		for (int i=0; i<dimension; i++){
+			for (int j=0; j<dimension; j++){
+				if (i+j-2<=dimension){
+					mutatedMaze[i][j] = mazeOne[i][j];
+				} else {
+					mutatedMaze[i][j] = mazeTwo[i][j];
+				}
 			}
 		}
-		for(int i=0;i<dimension;i++) {
-			for(int j=0; j<i;j++) { // Bottom diagonal of maze2
-				mutatedMaze[i][j] = mazeTwo[i][j];
-			}
-		}
+//		for(int i=0;i<dimension;i++) {
+//			for(int j=i; j<dimension; j++) { // Top diagonal of maze1
+//				mutatedMaze[i][j] = mazeOne[i][j];
+//			}
+//		}
+//		for(int i=0;i<dimension;i++) {
+//			for(int j=0; j<i;j++) { // Bottom diagonal of maze2
+//				mutatedMaze[i][j] = mazeTwo[i][j];
+//			}
+//		}
 		// Randomly generates a value for row and column and flip the value for the corresponding cell in the mutated maze
 		for (int count = 0; count<dimension; count++){
 			Random rand = new Random();
@@ -505,43 +514,43 @@ public class SearchAutomation {
 		mutatedMazeCopy = maze.copyMaze(mutatedMaze);
 		
 		switch(alg) {
-		case 1:
-			searchResult = maze.BFSMazeSearch(mutatedMazeCopy);  // Calls the search algorithm to checks if the resultant mutated maze is solvable else returns maze1
-			if(!(searchResult.containsKey("BFSMazeSearchTime") && searchResult.containsKey("BFSMazeSearchMoves")) 
-					|| heuristic > buildMazeHeuristic(searchResult.get("BFSMazePathLen"),searchResult.get("BFSMazeSearchMoves"),searchResult.get("BFSMazeMaxFringe"))) {
-			mazeOne[0][0] = -1;
-			return mazeOne; // If mutated maze is not solvable or not harder, then return maze1 with(0,0) as -1
-			} else {
-				return mutatedMaze;
-			}
-		case 2:
-			searchResult = maze.DFSMazeSearch(mutatedMazeCopy);
-			if(!(searchResult.containsKey("DFSMazeSearchTime") && searchResult.containsKey("DFSMazeSearchMoves")) 
-					|| heuristic > buildMazeHeuristic(searchResult.get("DFSMazePathLen"),searchResult.get("DFSMazeSearchMoves"),searchResult.get("DFSMazeMaxFringe"))) {
-			mazeOne[0][0] = -1;
-			return mazeOne;
-			} else {
-				return mutatedMaze;
-			}
-		case 3:
-			searchResult = maze.ManhattanAStarSearch(mutatedMazeCopy);
-			if(!(searchResult.containsKey("ManhatMazeSearchTime") && searchResult.containsKey("ManhatMazeSearchMoves")) 
-					|| heuristic > buildMazeHeuristic(searchResult.get("ManhatMazePathLen"),searchResult.get("ManhatMazeSearchMoves"),searchResult.get("ManhatMazeMaxFringe"))) {
-			mazeOne[0][0] = -1;
-			return mazeOne;
-			} else {
-				return mutatedMaze;
-			}
-		case 4:
-			searchResult = maze.EuclideanAStarSearch(mutatedMazeCopy);
-			if(!(searchResult.containsKey("EucliMazeSearchTime") && searchResult.containsKey("EucliMazeSearchMoves")) 
-					|| heuristic > buildMazeHeuristic(searchResult.get("EucliMazePathLen"),searchResult.get("EucliMazeSearchMoves"),searchResult.get("EucliMazeMaxFringe"))) {
-			mazeOne[0][0] = -1;
-			return mazeOne;
-			} else {
-				return mutatedMaze;
-			}
-		}
+			case 1:
+				searchResult = maze.DFSMazeSearch(mutatedMazeCopy);  // Calls the search algorithm to checks if the resultant mutated maze is solvable else returns maze1
+				if(!(searchResult.containsKey("DFSMazeSearchTime") && searchResult.containsKey("DFSMazeSearchMoves")) 
+						|| heuristic > buildMazeHeuristic(searchResult.get("DFSMazePathLen"),searchResult.get("DFSMazeSearchMoves"),searchResult.get("DFSMazeMaxFringe"))) {
+				mazeOne[0][0] = -1;
+				return mazeOne; // If mutated maze is not solvable or not harder, then return maze1 with(0,0) as -1
+				} else {
+					return mutatedMaze;
+				}
+			case 2:
+				searchResult = maze.BFSMazeSearch(mutatedMazeCopy);
+				if(!(searchResult.containsKey("BFSMazeSearchTime") && searchResult.containsKey("BFSMazeSearchMoves")) 
+						|| heuristic > buildMazeHeuristic(searchResult.get("BFSMazePathLen"),searchResult.get("BFSMazeSearchMoves"),searchResult.get("BFSMazeMaxFringe"))) {
+				mazeOne[0][0] = -1;
+				return mazeOne;
+				} else {
+					return mutatedMaze;
+				}
+			case 3:
+				searchResult = maze.ManhattanAStarSearch(mutatedMazeCopy);
+				if(!(searchResult.containsKey("ManhatMazeSearchTime") && searchResult.containsKey("ManhatMazeSearchMoves")) 
+						|| heuristic > buildMazeHeuristic(searchResult.get("ManhatMazePathLen"),searchResult.get("ManhatMazeSearchMoves"),searchResult.get("ManhatMazeMaxFringe"))) {
+				mazeOne[0][0] = -1;
+				return mazeOne;
+				} else {
+					return mutatedMaze;
+				}
+			case 4:
+				searchResult = maze.EuclideanAStarSearch(mutatedMazeCopy);
+				if(!(searchResult.containsKey("EucliMazeSearchTime") && searchResult.containsKey("EucliMazeSearchMoves")) 
+						|| heuristic > buildMazeHeuristic(searchResult.get("EucliMazePathLen"),searchResult.get("EucliMazeSearchMoves"),searchResult.get("EucliMazeMaxFringe"))) {
+				mazeOne[0][0] = -1;
+				return mazeOne;
+				} else {
+					return mutatedMaze;
+				}
+			}	
 	
 		return null;
 	}
@@ -635,7 +644,10 @@ public class SearchAutomation {
 	 * 
 	 */
 	public static double buildMazeHeuristic(String pathLen, String nodes, String fringe){
-		double heuristic = (0.25*Double.parseDouble(pathLen))+(0.25*Double.parseDouble(nodes))+(0.5*Double.parseDouble(fringe));
+		//double heuristic = (0.25*Double.parseDouble(pathLen))+(0.25*Double.parseDouble(nodes))+(0.5*Double.parseDouble(fringe));
+		double heuristic = Double.parseDouble(pathLen);
+		//double heuristic = Double.parseDouble(nodes);
+		//double heuristic = Double.parseDouble(fring);
 		return heuristic;
 	}
 }
