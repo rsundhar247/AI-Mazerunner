@@ -237,10 +237,7 @@ public class SearchAutomation {
 						
 								if (!maze.isSolvable(maze1)) maze1=maze1Copy;
 								
-								if(maze1[0][0] != -1) { /* When maze1 is returned, to identify it to be maze1, (0,0) element is made -1. For the first initial run with maze1 
-									and maze2, if it couldn't find an effective mutatedMaze, we re-run with new set of mazes */
-									firstLoop = false;
-								}
+								firstLoop = false;
 							}
 							break;
 						case 2:	
@@ -251,8 +248,7 @@ public class SearchAutomation {
 								maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")),alg);
 								if (!maze.isSolvable(maze1)) maze1=maze1Copy;
 								
-								if(maze1[0][0] != -1)
-									firstLoop = false;
+								firstLoop = false;
 							}
 							break;
 						case 3:	
@@ -263,8 +259,7 @@ public class SearchAutomation {
 								maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")),alg);
 								if (!maze.isSolvable(maze1)) maze1=maze1Copy;
 								
-								if(maze1[0][0] != -1)
-									firstLoop = false;
+								firstLoop = false;
 							}
 							break;
 						case 4:	
@@ -272,12 +267,10 @@ public class SearchAutomation {
 							secondSearch = maze.EuclideanAStarSearch(maze2Copy);
 							if(firstSearch.containsKey("EucliMazeSearchTime") && firstSearch.containsKey("EucliMazeSearchMoves") 
 									&& secondSearch.containsKey("EucliMazeSearchTime") && secondSearch.containsKey("EucliMazeSearchMoves")) {
-								maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg); /* Mutates both the mazes and 
-																									returns the new maze if its harder than maze1 else will return maze1 */
+								maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg);
 								if (!maze.isSolvable(maze1)) maze1=maze1Copy;
 								
-								if(maze1[0][0] != -1)
-									firstLoop = false;
+								firstLoop = false;
 							}
 							break;
 					}
@@ -308,49 +301,7 @@ public class SearchAutomation {
 							if (!maze.isSolvable(maze1)) maze1=maze1Copy;
 							break;
 					}
-					if(maze1[0][0] == -1) {
-						maze1[0][0] = 0;
-						// When the Diagonal method couldn't mutate to a solvable maze/harder maze based on the heuristic, than Horizontal genetic algorithm is run	
-						switch (alg) {
-							case 1:
-								maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")),alg);
-								break;
-							case 2:
-								maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")),alg);
-								break;
-							case 3:
-								maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")),alg);
-								break;
-							case 4:
-								maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg);
-								break;
-						}
-						
-						if(maze1[0][0] == -1) {
-							maze1[0][0] = 0;
-							// When the Diagonal & Horizontal method couldn't mutate to a solvable maze/harder maze based on the heuristic, than vertical genetic algorithm is run		
-							switch (alg) {
-								case 1:
-									maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")),alg);
-									break;
-								case 2:
-									maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")),alg);
-									break;
-								case 3:
-									maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")),alg);
-									break;
-								case 4:
-									maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg);
-									break;
-							}	
-							
-							if(maze1[0][0] == -1){
-								maze1[0][0] = 0;
-								loop++; // When none of the genetic algorithms are able to find a solvable hard maze, than loop is incremented, to generate a new maze2
-							}
-						}
-					}
-					maze1[0][0] = 0;
+					loop++;
 				}
 			}
 			totalAttempts++;
@@ -469,16 +420,7 @@ public class SearchAutomation {
 				}
 			}
 		}
-//		for(int i=0;i<dimension;i++) {
-//			for(int j=i; j<dimension; j++) { // Top diagonal of maze1
-//				mutatedMaze[i][j] = mazeOne[i][j];
-//			}
-//		}
-//		for(int i=0;i<dimension;i++) {
-//			for(int j=0; j<i;j++) { // Bottom diagonal of maze2
-//				mutatedMaze[i][j] = mazeTwo[i][j];
-//			}
-//		}
+
 		// Randomly generates a value for row and column and flip the value for the corresponding cell in the mutated maze
 		for (int count = 0; count<dimension/2; count++){
 			Random rand = new Random();
@@ -490,6 +432,8 @@ public class SearchAutomation {
 				else
 					mutatedMaze[i][j] = 0;
 			}
+			mutatedMaze[0][0] = 0;
+			mutatedMaze[dimension-1][dimension-1] = 0;
 		}
 		
 		Mazerunner maze = new Mazerunner();
@@ -570,6 +514,8 @@ public class SearchAutomation {
 				else
 					mutatedMaze[i][j] = 0;
 			}
+			mutatedMaze[0][0] = 0;
+			mutatedMaze[dimension-1][dimension-1] = 0;
 		}
 		// Randomly generates a value for row and column and flip the value for the corresponding cell in the mutated maze
 		Mazerunner maze = new Mazerunner();
@@ -650,6 +596,8 @@ public class SearchAutomation {
 				else
 					mutatedMaze[i][j] = 0;
 			}
+			mutatedMaze[0][0] = 0;
+			mutatedMaze[dimension-1][dimension-1] = 0;
 			
 		}
 

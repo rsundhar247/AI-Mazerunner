@@ -134,8 +134,9 @@ public class Mazerunner{
 			temp[2] = 1; //path length to this move, first move so =1
 			stack.push(temp);
 			visited[i+1][j] = true;
-			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j)); /* All the nodes added to the stack for exploration 
-																				are added to this map, so that the shortest path can be backtracked from the goal node */
+			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j)); 
+			/* All the nodes added to the stack for exploration 
+			are added to this map, so that the shortest path can be backtracked from the goal node */
 		}
 		if (DFSMaze[i][j+1] == 0){
 			int[] temp = new int[3];
