@@ -140,7 +140,7 @@ public class Mazerunner{
 						System.out.println(" ");
 					}
 				} else {
-					if (maze[i][j]<99)	System.out.print(" ");
+					if (maze[i][j]<100)	System.out.print(" ");
 				}
 			}
 		}

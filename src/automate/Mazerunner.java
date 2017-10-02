@@ -25,6 +25,11 @@ import java.util.Stack;
 
 public class Mazerunner{
 	static int pathLen = 0;
+	static int dimension;
+	static int[][] DFSHardSolution;
+	static int[][] BFSHardSolution;
+	static int[][] ManhatHardSolution;
+	static int[][] EucliHardSolution;
 	
 	/*
 	 * 
@@ -34,6 +39,7 @@ public class Mazerunner{
 	 * 
 	 */
 	public int[][] createMaze(int dim, double p){
+		dimension = dim;
 		int[][] maze = new int[dim][dim];
 		for (int i=0; i<dim; i++){
 			for (int j=0; j<dim; j++){
@@ -62,25 +68,22 @@ public class Mazerunner{
 	 * Input - maze to be printed
 	 * 
 	 */
-	public void printMaze(int[][] maze){
+	public static void printMaze(int[][] maze){
 		if (maze == null){
 			return;
 		}
 		for (int i = 0; i< maze.length; i++){
 			for (int j = 0; j < maze[0].length; j++){
-				if (maze[i][j]>=0)	System.out.print(" "); //space to keep appearance clean
+				if (maze[i][j]>=0 && maze[i][j]<10)	System.out.print(" "); //space to keep appearance clean
+				System.out.print(maze[i][j]);
 				if (j == maze[0].length - 1) {
-					if(maze[i][j]>=0 && maze[i][j]<10){
-						System.out.println(maze[i][j] + " ");
+					if (maze[i][j]>99){
+						System.out.println();
 					} else {
-						System.out.println(maze[i][j]);						
+						System.out.println(" ");
 					}
 				} else {
-					if(maze[i][j]<10){
-						System.out.print(maze[i][j] + " ");
-					} else {
-						System.out.print(maze[i][j]);						
-					}
+					if (maze[i][j]<100)	System.out.print(" ");
 				}
 			}
 		}
@@ -130,6 +133,7 @@ public class Mazerunner{
 			temp[1] = j;
 			temp[2] = 1; //path length to this move, first move so =1
 			stack.push(temp);
+			visited[i+1][j] = true;
 			parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j)); /* All the nodes added to the stack for exploration 
 																				are added to this map, so that the shortest path can be backtracked from the goal node */
 		}
@@ -139,24 +143,20 @@ public class Mazerunner{
 			temp[1] = j+1;
 			temp[2] = 1; //path length to this move, first move so =1
 			stack.push(temp);
+			visited[i][j+1] = true;
 			parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 		}
 		
 		while (!(i == (dim-1) && j == (dim-1)) && currentMove<maxMoves && !stack.isEmpty()) { // Loop till the goal node is reached or until no more nodes are available to explore
 			int x, y;
 			int[] current;
-			do {
+			
 			current = stack.pop();
 			x = current[0];
 			y = current[1];
-			} while (visited[x][y]==true && !stack.isEmpty());
-			
-			if (stack.isEmpty() && (current[0]==i && current[1]==j)){
-				break;
-			}
+
 			
 			DFSMaze[x][y] = current[2];
-			visited[x][y] = true;
 			
 			i=x;
 			j=y;
@@ -168,6 +168,7 @@ public class Mazerunner{
 				temp[1] = j-1;
 				temp[2] = DFSMaze[i][j] + 1;
 				stack.add(temp);
+				visited[i][j-1] = true;
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j-1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i-1) >= 0 && DFSMaze[i-1][j]==0 && visited[i-1][j]==false){
@@ -176,6 +177,7 @@ public class Mazerunner{
 				temp[1] = j;
 				temp[2] = DFSMaze[i][j] + 1;
 				stack.add(temp);
+				visited[i-1][j] = true;
 				parentMap.put(String.valueOf(i-1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((i+1) < dim && DFSMaze[i+1][j]==0 && visited[i+1][j]==false){
@@ -184,6 +186,7 @@ public class Mazerunner{
 				temp[1] = j;
 				temp[2] = DFSMaze[i][j] + 1;
 				stack.add(temp);
+				visited[i+1][j] = true;
 				parentMap.put(String.valueOf(i+1)+"-"+String.valueOf(j), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			if ((j+1) < dim && DFSMaze[i][j+1]==0 && visited[i][j+1]==false){
@@ -192,6 +195,7 @@ public class Mazerunner{
 				temp[1] = j+1;
 				temp[2] = DFSMaze[i][j] + 1;
 				stack.add(temp);
+				visited[i][j+1] = true;
 				parentMap.put(String.valueOf(i)+"-"+String.valueOf(j+1), String.valueOf(i)+"-"+String.valueOf(j));
 			}
 			
@@ -216,6 +220,7 @@ public class Mazerunner{
 			dfsMap.put("DFSMazeSearchMoves", String.valueOf(currentMove)); // Total number of nodes explored
 			dfsMap.put("DFSMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime))); // Time taken for the search algorithm to run
 		}
+		DFSHardSolution = DFSMaze;
 		return dfsMap;
 	}
 
@@ -329,6 +334,7 @@ public class Mazerunner{
 			bfsMap.put("BFSMazeSearchMoves", String.valueOf(currentMove));
 			bfsMap.put("BFSMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
 		}
+		BFSHardSolution = BFSMaze;
 		return bfsMap;
 	}
 	
@@ -416,6 +422,7 @@ public class Mazerunner{
 			manhatMap.put("ManhatMazeSearchMoves", String.valueOf(currentMove));
 			manhatMap.put("ManhatMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
 		}
+		ManhatHardSolution = manhattanMaze;
 		return manhatMap;
 	}
 	
@@ -503,7 +510,7 @@ public class Mazerunner{
 			eucliMap.put("EucliMazeSearchMoves", String.valueOf(currentMove));
 			eucliMap.put("EucliMazeSearchTime", String.valueOf((0.000001)*(endTime - startTime)));
 		}
-		
+		EucliHardSolution = euclideanMaze;
 		return eucliMap;
 	}
 	
@@ -542,6 +549,91 @@ public class Mazerunner{
 	}
 	
 	/*
+	 * Returns true if a maze is solvable using DFS
+	 */
+	public boolean isSolvable(int[][] maze){
+		int[][] SolutionMaze = copyMaze(maze);	//copy original maze
+		int dim = maze.length;
+		int maxMoves = dim*dim;
+		
+		boolean[][] visited = new boolean[dim][dim];	//stores whether a cell has been added to the fringe already
+		Stack<int[]> stack = new Stack<int[]>();
+		
+		int i=0, j=0, currentMove=1;
+		visited[0][0] = true;
+		
+		if (SolutionMaze[i+1][j] == 0){	//if [1][0] is not blocked
+			int[] temp = new int[3];
+			temp[0] = i+1;
+			temp[1] = j;
+			temp[2] = 1; //path length to this move, first move so =1
+			stack.push(temp);
+			visited[i+1][j] = true;
+		}
+		if (SolutionMaze[i][j+1] == 0){	//if [0][1] is not blocked
+			int[] temp = new int[3];
+			temp[0] = i;
+			temp[1] = j+1;
+			temp[2] = 1; //path length to this move, first move so =1
+			stack.push(temp);
+			visited[i][j+1] = true;
+		}
+		//search while within the boundaries of the maze, less than the maximum number of searches, and there are cells in the stack
+		while (!(i == (dim-1) && j == (dim-1)) && currentMove<maxMoves && !stack.isEmpty()) { 
+			int x, y;
+			int[] current;
+
+			current = stack.pop();	//get cell off the stack
+			
+			x = current[0];
+			y = current[1];	
+			SolutionMaze[x][y] = current[2];
+			
+			i=x;
+			j=y;
+			currentMove++;
+			
+			if ((j-1) >= 0 && SolutionMaze[i][j-1]==0 && visited[i][j-1]==false){ 	//add [i][j-1] to stack if not blocked and not already added
+				int[] temp = new int[3];
+				temp[0] = i;
+				temp[1] = j-1;
+				temp[2] = SolutionMaze[i][j] + 1;
+				stack.add(temp);
+				visited[i][j-1] = true;
+			}
+			if ((i-1) >= 0 && SolutionMaze[i-1][j]==0 && visited[i-1][j]==false){ 	//add [i-1][j] to stack if not blocked and not already added
+				int[] temp = new int[3];
+				temp[0] = i-1;
+				temp[1] = j;
+				temp[2] = SolutionMaze[i][j] + 1;
+				stack.add(temp);
+				visited[i-1][j] = true;
+			}
+			if ((i+1) < dim && SolutionMaze[i+1][j]==0 && visited[i+1][j]==false){	//add [i+1][j] to stack if not blocked and not already added
+				int[] temp = new int[3];
+				temp[0] = i+1;
+				temp[1] = j;
+				temp[2] = SolutionMaze[i][j] + 1;
+				stack.add(temp);
+				visited[i+1][j] = true;
+			}
+			if ((j+1) < dim && SolutionMaze[i][j+1]==0 && visited[i][j+1]==false){	//add [i][j+1] to stack if not blocked and not already added
+				int[] temp = new int[3];
+				temp[0] = i;
+				temp[1] = j+1;
+				temp[2] = SolutionMaze[i][j] + 1;
+				stack.add(temp);
+				visited[i][j+1] = true;
+			}
+			
+		}
+		
+		if (SolutionMaze[dim-1][dim-1]>0) return true;
+		else return false;
+	
+	}
+	
+	/*
 	 * This method calculates the heuristic for the euclidean distance
 	 * Input - row, col, dim
 	 * Return - Euclidean distance heuristic value
@@ -549,4 +641,5 @@ public class Mazerunner{
 	public double eucliDist(int row, int col, int dim){
 		return (Math.sqrt(Math.pow((dim-row-1), 2)+Math.pow((dim-col-1), 2)));
 	}
+	
 }

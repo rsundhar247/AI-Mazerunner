@@ -17,8 +17,8 @@ import java.util.Random;
 
 public class SearchAutomation {
 	
-	static int dimension = 15; //Dimension of the maze
-	static double prob = 0.35; //Probability with which the maze is to be generated
+	static int dimension = 50; //Dimension of the maze
+	static double prob = 0.25; //Probability with which the maze is to be generated
 	
 	public static void main(String args[]){
 		
@@ -55,6 +55,7 @@ public class SearchAutomation {
 		String[] bfsFringe = new String[numOfTimes];
 		String[] manhatFringe = new String[numOfTimes];
 		String[] eucliFringe = new String[numOfTimes];
+		
 		
 		Mazerunner maze = new Mazerunner();
 		mazeGrid = new int[dimension][dimension];
@@ -188,9 +189,10 @@ public class SearchAutomation {
 	 */
 	public static void geneticMaze(String searchAlg){
 		long startTime = System.nanoTime();
+
 		
 		int alg = 0;
-		prob = 0.35;
+		prob = 0.30;
 		if (searchAlg.equals("DFS")) alg = 1;
 		else if (searchAlg.equals("BFS")) alg = 2;
 		else if (searchAlg.equals("Manhat")) alg = 3;
@@ -200,145 +202,196 @@ public class SearchAutomation {
 		int[][] maze1Copy = new int[dimension][dimension];
 		int[][] maze2 = new int[dimension][dimension];
 		int[][] maze2Copy = new int[dimension][dimension];
+		
 		HashMap<String,String> firstSearch = new HashMap<String,String>();
 		HashMap<String,String> secondSearch = new HashMap<String,String>();
 		
 		Mazerunner maze = new Mazerunner();
 		
-		int loop = 0;
-		boolean firstLoop = true; /* For the first time, the 2 mazes taken for joining will be newly created. 
+		int solvableMaze = 0; //tracker to re-attempt genetic algorithm if maze is unsolvable
+		int totalAttempts = 0; //total number of attempts at finding a hard solution
+		
+
+		/* For the first time, the 2 mazes taken for joining will be newly created. 
 					After the first run, the mutated maze will be taken as maze1 and new maze as maze2 */
-		while(loop <= 500) {
-			if(firstLoop)
-			{
-				maze1 = maze.createMaze(dimension,prob);
-				maze1Copy = maze.copyMaze(maze1);
-				maze2 = maze.createMaze(dimension,prob);
-				maze2Copy = maze.copyMaze(maze2);
-				
-				switch (alg) {
-					case 1: 
-						firstSearch = maze.DFSMazeSearch(maze1Copy);
-						secondSearch = maze.DFSMazeSearch(maze2Copy);
-						// Search algorithm is run for both the mazes and if "No Solution" is found for either 1 of them, than a new set of mazes are generated
-						if(firstSearch.containsKey("DFSMazeSearchTime") && firstSearch.containsKey("DFSMazeSearchMoves") && firstSearch.containsKey("DFSMazeMaxFringe")
-								&& secondSearch.containsKey("DFSMazeSearchTime") && secondSearch.containsKey("DFSMazeSearchMoves") && secondSearch.containsKey("DFSMazeMaxFringe")) {
-							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")),alg);
+		while (solvableMaze == 0 && totalAttempts<1000) {
+			boolean firstLoop = true; 
+			int loop = 0;
+			
+			while(loop <= 500) {
+				if(firstLoop)
+				{
+					maze1 = maze.createMaze(dimension,prob);
+					maze1Copy = maze.copyMaze(maze1);
+					maze2 = maze.createMaze(dimension,prob);
+					maze2Copy = maze.copyMaze(maze2);
 					
-							if(maze1[0][0] != -1) { /* When maze1 is returned, to identify it to be maze1, (0,0) element is made -1. For the first initial run with maze1 
-								and maze2, if it couldn't find an effective mutatedMaze, we re-run with new set of mazes */
-								firstLoop = false;
+					switch (alg) {
+						case 1: 
+							firstSearch = maze.DFSMazeSearch(maze1Copy);
+							secondSearch = maze.DFSMazeSearch(maze2Copy);
+							// Search algorithm is run for both the mazes and if "No Solution" is found for either 1 of them, than a new set of mazes are generated
+							if(firstSearch.containsKey("DFSMazeSearchTime") && firstSearch.containsKey("DFSMazeSearchMoves") && firstSearch.containsKey("DFSMazeMaxFringe")
+									&& secondSearch.containsKey("DFSMazeSearchTime") && secondSearch.containsKey("DFSMazeSearchMoves") && secondSearch.containsKey("DFSMazeMaxFringe")) {
+								maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")),alg);
+						
+								if (!maze.isSolvable(maze1)) maze1=maze1Copy;
+								
+								if(maze1[0][0] != -1) { /* When maze1 is returned, to identify it to be maze1, (0,0) element is made -1. For the first initial run with maze1 
+									and maze2, if it couldn't find an effective mutatedMaze, we re-run with new set of mazes */
+									firstLoop = false;
+								}
 							}
-						}
-						break;
-					case 2:	
-						firstSearch = maze.BFSMazeSearch(maze1Copy);
-						secondSearch = maze.BFSMazeSearch(maze2Copy);
-						if(firstSearch.containsKey("BFSMazeSearchTime") && firstSearch.containsKey("BFSMazeSearchMoves") 
-								&& secondSearch.containsKey("BFSMazeSearchTime") && secondSearch.containsKey("BFSMazeSearchMoves")) {
-							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")),alg);
+							break;
+						case 2:	
+							firstSearch = maze.BFSMazeSearch(maze1Copy);
+							secondSearch = maze.BFSMazeSearch(maze2Copy);
+							if(firstSearch.containsKey("BFSMazeSearchTime") && firstSearch.containsKey("BFSMazeSearchMoves") 
+									&& secondSearch.containsKey("BFSMazeSearchTime") && secondSearch.containsKey("BFSMazeSearchMoves")) {
+								maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")),alg);
+								if (!maze.isSolvable(maze1)) maze1=maze1Copy;
+								
+								if(maze1[0][0] != -1)
+									firstLoop = false;
+							}
+							break;
+						case 3:	
+							firstSearch = maze.ManhattanAStarSearch(maze1Copy);
+							secondSearch = maze.ManhattanAStarSearch(maze2Copy);
+							if(firstSearch.containsKey("ManhatMazeSearchTime") && firstSearch.containsKey("ManhatMazeSearchMoves") 
+									&& secondSearch.containsKey("ManhatMazeSearchTime") && secondSearch.containsKey("ManhatMazeSearchMoves")) {
+								maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")),alg);
+								if (!maze.isSolvable(maze1)) maze1=maze1Copy;
+								
+								if(maze1[0][0] != -1)
+									firstLoop = false;
+							}
+							break;
+						case 4:	
+							firstSearch = maze.EuclideanAStarSearch(maze1Copy);
+							secondSearch = maze.EuclideanAStarSearch(maze2Copy);
+							if(firstSearch.containsKey("EucliMazeSearchTime") && firstSearch.containsKey("EucliMazeSearchMoves") 
+									&& secondSearch.containsKey("EucliMazeSearchTime") && secondSearch.containsKey("EucliMazeSearchMoves")) {
+								maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg); /* Mutates both the mazes and 
+																									returns the new maze if its harder than maze1 else will return maze1 */
+								if (!maze.isSolvable(maze1)) maze1=maze1Copy;
+								
+								if(maze1[0][0] != -1)
+									firstLoop = false;
+							}
+							break;
+					}
 					
-							if(maze1[0][0] != -1)
-								firstLoop = false;
-						}
-						break;
-					case 3:	
-						firstSearch = maze.ManhattanAStarSearch(maze1Copy);
-						secondSearch = maze.ManhattanAStarSearch(maze2Copy);
-						if(firstSearch.containsKey("ManhatMazeSearchTime") && firstSearch.containsKey("ManhatMazeSearchMoves") 
-								&& secondSearch.containsKey("ManhatMazeSearchTime") && secondSearch.containsKey("ManhatMazeSearchMoves")) {
-							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")),alg);
-					
-							if(maze1[0][0] != -1)
-								firstLoop = false;
-						}
-						break;
-					case 4:	
-						firstSearch = maze.EuclideanAStarSearch(maze1Copy);
-						secondSearch = maze.EuclideanAStarSearch(maze2Copy);
-						if(firstSearch.containsKey("EucliMazeSearchTime") && firstSearch.containsKey("EucliMazeSearchMoves") 
-								&& secondSearch.containsKey("EucliMazeSearchTime") && secondSearch.containsKey("EucliMazeSearchMoves")) {
-							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg); /* Mutates both the mazes and 
-																								returns the new maze if its harder than maze1 else will return maze1 */
-					
-							if(maze1[0][0] != -1)
-								firstLoop = false;
-						}
-						break;
-				}
-				
-			} else {
-				maze2 = maze.createMaze(dimension, prob);
-				maze2Copy = maze.copyMaze(maze2);
-				/*
-				 * maze1 will be the mutated maze returned from joinMazeDiagonal function
-				 * buildMazeHeuristic calculates the heuristic based on the weighted probability
-				 */
-				switch (alg) {
-					case 1:
-						maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")),alg);
-						break;
-					case 2:
-						maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")),alg);
-						break;
-					case 3:
-						maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")),alg);
-						break;
-					case 4:
-						maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg);
-						break;
-				}
-				if(maze1[0][0] == -1) {
-					maze1[0][0] = 0;
-					// When the Diagonal method couldn't mutate to a solvable maze/harder maze based on the heuristic, than Horizontal genetic algorithm is run	
+				} else {
+					maze2 = maze.createMaze(dimension, prob);
+					maze2Copy = maze.copyMaze(maze2);
+					maze1Copy = maze.copyMaze(maze1);
+					/*
+					 * maze1 will be the mutated maze returned from joinMazeDiagonal function
+					 * buildMazeHeuristic calculates the heuristic based on the weighted probability
+					 */
 					switch (alg) {
 						case 1:
-							maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")),alg);
+							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")),alg);
+							if (!maze.isSolvable(maze1)) maze1=maze1Copy;
 							break;
 						case 2:
-							maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")),alg);
+							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")),alg);
+							if (!maze.isSolvable(maze1)) maze1=maze1Copy;
 							break;
 						case 3:
-							maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")),alg);
+							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")),alg);
+							if (!maze.isSolvable(maze1)) maze1=maze1Copy;
 							break;
 						case 4:
-							maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg);
+							maze1 = joinMazeDiagonal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg);
+							if (!maze.isSolvable(maze1)) maze1=maze1Copy;
 							break;
 					}
-					
 					if(maze1[0][0] == -1) {
 						maze1[0][0] = 0;
-						// When the Diagonal & Horizontal method couldn't mutate to a solvable maze/harder maze based on the heuristic, than vertical genetic algorithm is run		
+						// When the Diagonal method couldn't mutate to a solvable maze/harder maze based on the heuristic, than Horizontal genetic algorithm is run	
 						switch (alg) {
 							case 1:
-								maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")),alg);
+								maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")),alg);
 								break;
 							case 2:
-								maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")),alg);
+								maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")),alg);
 								break;
 							case 3:
-								maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")),alg);
+								maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")),alg);
 								break;
 							case 4:
-								maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg);
+								maze1 = joinMazeHorizontal(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg);
 								break;
-						}	
+						}
 						
-						if(maze1[0][0] == -1){
+						if(maze1[0][0] == -1) {
 							maze1[0][0] = 0;
-							loop++; // When none of the genetic algorithms are able to find a solvable hard maze, than loop is incremented, to generate a new maze2
+							// When the Diagonal & Horizontal method couldn't mutate to a solvable maze/harder maze based on the heuristic, than vertical genetic algorithm is run		
+							switch (alg) {
+								case 1:
+									maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("DFSMazePathLen"),firstSearch.get("DFSMazeSearchMoves"),firstSearch.get("DFSMazeMaxFringe")),alg);
+									break;
+								case 2:
+									maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("BFSMazePathLen"),firstSearch.get("BFSMazeSearchMoves"),firstSearch.get("BFSMazeMaxFringe")),alg);
+									break;
+								case 3:
+									maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("ManhatMazePathLen"),firstSearch.get("ManhatMazeSearchMoves"),firstSearch.get("ManhatMazeMaxFringe")),alg);
+									break;
+								case 4:
+									maze1 = joinMazeVertical(maze1,maze2,buildMazeHeuristic(firstSearch.get("EucliMazePathLen"),firstSearch.get("EucliMazeSearchMoves"),firstSearch.get("EucliMazeMaxFringe")),alg);
+									break;
+							}	
+							
+							if(maze1[0][0] == -1){
+								maze1[0][0] = 0;
+								loop++; // When none of the genetic algorithms are able to find a solvable hard maze, than loop is incremented, to generate a new maze2
+							}
 						}
 					}
+					maze1[0][0] = 0;
 				}
-				maze1[0][0] = 0;
+			}
+			totalAttempts++;
+			switch (alg){
+				case 1:
+					if (maze.DFSHardSolution[maze.dimension-1][maze.dimension-1]>0) solvableMaze = 1;
+					else {
+						System.out.println("DFS Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
+					}
+					break;
+				case 2:
+					if (maze.BFSHardSolution[maze.dimension-1][maze.dimension-1]>0) solvableMaze = 1;
+					else {
+						System.out.println("BFS Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
+					}
+					break;
+				case 3:
+					if (maze.ManhatHardSolution[maze.dimension-1][maze.dimension-1]>0) solvableMaze = 1;
+					else {
+						System.out.println("Manhattan Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
+					}
+					break;
+				case 4:
+					if (maze.EucliHardSolution[maze.dimension-1][maze.dimension-1]>0) solvableMaze = 1;
+					else {
+						System.out.println("Eucli Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
+					}
+					break;
 			}
 		}
+		
 		long endTime = System.nanoTime();
+		System.out.println("Attempts: " + totalAttempts);
 		switch (alg) {
 			case 1:
 				System.out.println("****************** DFS Hard Maze Found ******************");
 				maze.printMaze(maze1);
 				System.out.println("****************** DFS Hard Maze Found ******************");
+				System.out.println("***************** DFS Hard Maze Solution ******************");
+				maze.printMaze(maze.DFSHardSolution);
+				System.out.println("***************** DFS Hard Maze Solution ******************");
 				System.out.println("Time taken for Genetic Algorithm ::: "+String.valueOf((0.000001)*(endTime - startTime))+"ms");
 				firstSearch = maze.DFSMazeSearch(maze1);
 				System.out.println("Path for harder Maze is ::: "+firstSearch.get("DFSMazeSearchSoln"));
@@ -351,6 +404,9 @@ public class SearchAutomation {
 				System.out.println("****************** BFS Hard Maze Found ******************");
 				maze.printMaze(maze1);
 				System.out.println("****************** BFS Hard Maze Found ******************");
+				System.out.println("***************** BFS Hard Maze Solution ******************");
+				maze.printMaze(maze.BFSHardSolution);
+				System.out.println("***************** BFS Hard Maze Solution ******************");
 				System.out.println("Time taken for Genetic Algorithm ::: "+String.valueOf((0.000001)*(endTime - startTime))+"ms");
 				firstSearch = maze.BFSMazeSearch(maze1);
 				System.out.println("Path for harder Maze is ::: "+firstSearch.get("BFSMazeSearchSoln"));
@@ -363,6 +419,9 @@ public class SearchAutomation {
 				System.out.println("****************** Manhattan A* Hard Maze Found ******************");
 				maze.printMaze(maze1);
 				System.out.println("****************** Manhattan A* Hard Maze Found ******************");
+				System.out.println("***************** Manhattan A* Hard Maze Solution ******************");
+				maze.printMaze(maze.ManhatHardSolution);
+				System.out.println("***************** Manhattan A* Hard Maze Solution ******************");
 				System.out.println("Time taken for Genetic Algorithm ::: "+String.valueOf((0.000001)*(endTime - startTime))+"ms");
 				firstSearch = maze.ManhattanAStarSearch(maze1);
 				System.out.println("Path for harder Maze is ::: "+firstSearch.get("ManhatMazeSearchSoln"));
@@ -375,6 +434,9 @@ public class SearchAutomation {
 				System.out.println("****************** Euclidean Hard Maze Found ******************");
 				maze.printMaze(maze1);
 				System.out.println("****************** Euclidean Hard Maze Found ******************");
+				System.out.println("***************** Euclidean A* Hard Maze Solution ******************");
+				maze.printMaze(maze.EucliHardSolution);
+				System.out.println("***************** Euclidean A* Hard Maze Solution ******************");
 				System.out.println("Time taken for Genetic Algorithm ::: "+String.valueOf((0.000001)*(endTime - startTime))+"ms");
 				firstSearch = maze.EuclideanAStarSearch(maze1);
 				System.out.println("Path for harder Maze is ::: "+firstSearch.get("EucliMazeSearchSoln"));
@@ -418,7 +480,7 @@ public class SearchAutomation {
 //			}
 //		}
 		// Randomly generates a value for row and column and flip the value for the corresponding cell in the mutated maze
-		for (int count = 0; count<dimension; count++){
+		for (int count = 0; count<dimension/2; count++){
 			Random rand = new Random();
 			int i = rand.nextInt(dimension-1);
 			int j = rand.nextInt(dimension-1);
@@ -498,7 +560,7 @@ public class SearchAutomation {
 			}
 		}
 		
-		for (int count = 0; count<dimension; count++){
+		for (int count = 0; count<dimension/2; count++){
 			Random rand = new Random();
 			int i = rand.nextInt(dimension-1);
 			int j = rand.nextInt(dimension-1);
@@ -578,7 +640,7 @@ public class SearchAutomation {
 			}
 		}
 		// Randomly generates a value for row and column and flip the value for the corresponding cell in the mutated maze
-		for (int count = 0; count<dimension; count++){
+		for (int count = 0; count<dimension/2; count++){
 			Random rand = new Random();
 			int i = rand.nextInt(dimension-1);
 			int j = rand.nextInt(dimension-1);
