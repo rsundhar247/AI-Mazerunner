@@ -435,18 +435,18 @@ public class SearchAutomation {
 		
 		switch(alg) {
 			case 1:
-				searchResult = maze.BFSMazeSearch(mutatedMazeCopy);  // Calls the search algorithm to checks if the resultant mutated maze is solvable else returns maze1
-				if(!(searchResult.containsKey("BFSMazeSearchTime") && searchResult.containsKey("BFSMazeSearchMoves")) 
-						|| heuristic > buildMazeHeuristic(searchResult.get("BFSMazePathLen"),searchResult.get("BFSMazeSearchMoves"),searchResult.get("BFSMazeMaxFringe"))) {
+				searchResult = maze.DFSMazeSearch(mutatedMazeCopy);  // Calls the search algorithm to checks if the resultant mutated maze is solvable else returns maze1
+				if(!(searchResult.containsKey("DFSMazeSearchTime") && searchResult.containsKey("DFSMazeSearchMoves")) 
+						|| heuristic > buildMazeHeuristic(searchResult.get("DFSMazePathLen"),searchResult.get("DFSMazeSearchMoves"),searchResult.get("DFSMazeMaxFringe"))) {
 				mazeOne[0][0] = -1;
 				return mazeOne; // If mutated maze is not solvable or not harder, then return maze1 with (0,0) as -1
 				} else {
 					return mutatedMaze;
 				}
 			case 2:
-				searchResult = maze.DFSMazeSearch(mutatedMazeCopy);
-				if(!(searchResult.containsKey("DFSMazeSearchTime") && searchResult.containsKey("DFSMazeSearchMoves")) 
-						|| heuristic > buildMazeHeuristic(searchResult.get("DFSMazePathLen"),searchResult.get("DFSMazeSearchMoves"),searchResult.get("DFSMazeMaxFringe"))) {
+				searchResult = maze.BFSMazeSearch(mutatedMazeCopy);
+				if(!(searchResult.containsKey("BFSMazeSearchTime") && searchResult.containsKey("BFSMazeSearchMoves")) 
+						|| heuristic > buildMazeHeuristic(searchResult.get("BFSMazePathLen"),searchResult.get("BFSMazeSearchMoves"),searchResult.get("BFSMazeMaxFringe"))) {
 				mazeOne[0][0] = -1;
 				return mazeOne;
 				} else {
@@ -595,18 +595,18 @@ public class SearchAutomation {
 		mutatedMazeCopy = maze.copyMaze(mutatedMaze);
 		switch(alg) {
 		case 1:
-			searchResult = maze.BFSMazeSearch(mutatedMazeCopy);  // Calls the search algorithm to checks if the resultant mutated maze is solvable else returns maze1
-			if(!(searchResult.containsKey("BFSMazeSearchTime") && searchResult.containsKey("BFSMazeSearchMoves")) 
-					|| heuristic > buildMazeHeuristic(searchResult.get("BFSMazePathLen"),searchResult.get("BFSMazeSearchMoves"),searchResult.get("BFSMazeMaxFringe"))) {
+			searchResult = maze.DFSMazeSearch(mutatedMazeCopy);  // Calls the search algorithm to checks if the resultant mutated maze is solvable else returns maze1
+			if(!(searchResult.containsKey("DFSMazeSearchTime") && searchResult.containsKey("DFSMazeSearchMoves")) 
+					|| heuristic > buildMazeHeuristic(searchResult.get("DFSMazePathLen"),searchResult.get("DFSMazeSearchMoves"),searchResult.get("DFSMazeMaxFringe"))) {
 			mazeOne[0][0] = -1;
 			return mazeOne; // If mutated maze is not solvable or not harder, then return maze1 with(0,0) as -1
 			} else {
 				return mutatedMaze;
 			}
 		case 2:
-			searchResult = maze.DFSMazeSearch(mutatedMazeCopy);
-			if(!(searchResult.containsKey("DFSMazeSearchTime") && searchResult.containsKey("DFSMazeSearchMoves")) 
-					|| heuristic > buildMazeHeuristic(searchResult.get("DFSMazePathLen"),searchResult.get("DFSMazeSearchMoves"),searchResult.get("DFSMazeMaxFringe"))) {
+			searchResult = maze.BFSMazeSearch(mutatedMazeCopy);
+			if(!(searchResult.containsKey("BFSMazeSearchTime") && searchResult.containsKey("BFSMazeSearchMoves")) 
+					|| heuristic > buildMazeHeuristic(searchResult.get("BFSMazePathLen"),searchResult.get("BFSMazeSearchMoves"),searchResult.get("BFSMazeMaxFringe"))) {
 			mazeOne[0][0] = -1;
 			return mazeOne;
 			} else {
@@ -637,17 +637,16 @@ public class SearchAutomation {
 	
 	/*
 	 * 
-	 * This method calculates the weighted average probability to compare maze solutions
-	 * Weightage given to create the hard maze is: 0.25*Shortest path length + 0.25*Number of nodes explored + 0.5*Maximum Fringe size
+	 * This method returns the desired Heuristic we are examining
 	 * Input Parameters - pathLen, nodes & fringe
-	 * Returns - Final heuristic value calculated
+	 * Returns - Final heuristic value selected
 	 * 
 	 */
 	public static double buildMazeHeuristic(String pathLen, String nodes, String fringe){
 		//double heuristic = (0.25*Double.parseDouble(pathLen))+(0.25*Double.parseDouble(nodes))+(0.5*Double.parseDouble(fringe));
 		double heuristic = Double.parseDouble(pathLen);
 		//double heuristic = Double.parseDouble(nodes);
-		//double heuristic = Double.parseDouble(fring);
+		//double heuristic = Double.parseDouble(fringe);
 		return heuristic;
 	}
 }
