@@ -420,7 +420,7 @@ public class GeneticAlgorithm {
 		
 		for (int i=0; i<dimension; i++){
 			for (int j=0; j<dimension; j++){
-				if (i+j-2<=dimension){
+				if (i+j+2<=dimension){
 					mutatedMaze[i][j] = mazeOne[i][j];
 				} else {
 					mutatedMaze[i][j] = mazeTwo[i][j];
