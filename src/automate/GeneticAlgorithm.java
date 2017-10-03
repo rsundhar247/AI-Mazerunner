@@ -15,14 +15,21 @@ package automate;
 import java.util.HashMap;
 import java.util.Random;
 
-public class SearchAutomation {
+public class GeneticAlgorithm {
 	
 	static int dimension = 50; //Dimension of the maze
 	static double prob = 0.25; //Probability with which the maze is to be generated
 	
+	/* 	="pathLen" to maximize length of solution,
+	*	="nodes" to maximize number of nodes explored,
+	*	="fringe" to maximize largest size of fringe
+	*/
+	static String heuristic = "pathLen"; 
+	
+	
 	public static void main(String args[]){
 		
-		searchAutomate(); //To run the search algorithms multiple times
+		//searchAutomate(); //To run the search algorithms multiple times
 		geneticMaze("DFS");
 		geneticMaze("BFS");
 		geneticMaze("Manhat");
@@ -308,33 +315,33 @@ public class SearchAutomation {
 			switch (alg){
 				case 1:
 					if (maze.DFSHardSolution[maze.dimension-1][maze.dimension-1]>0) solvableMaze = 1;
-					else {
-						System.out.println("DFS Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
-					}
+//					else {
+//						System.out.println("DFS Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
+//					}
 					break;
 				case 2:
 					if (maze.BFSHardSolution[maze.dimension-1][maze.dimension-1]>0) solvableMaze = 1;
-					else {
-						System.out.println("BFS Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
-					}
+//					else {
+//						System.out.println("BFS Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
+//					}
 					break;
 				case 3:
 					if (maze.ManhatHardSolution[maze.dimension-1][maze.dimension-1]>0) solvableMaze = 1;
-					else {
-						System.out.println("Manhattan Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
-					}
+//					else {
+//						System.out.println("Manhattan Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
+//					}
 					break;
 				case 4:
 					if (maze.EucliHardSolution[maze.dimension-1][maze.dimension-1]>0) solvableMaze = 1;
-					else {
-						System.out.println("Eucli Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
-					}
+//					else {
+//						System.out.println("Eucli Attempt number: " + totalAttempts + ". Unsolvable maze produced. Retrying");
+//					}
 					break;
 			}
 		}
 		
 		long endTime = System.nanoTime();
-		System.out.println("Attempts: " + totalAttempts);
+		//System.out.println("Attempts: " + totalAttempts);
 		switch (alg) {
 			case 1:
 				System.out.println("****************** DFS Hard Maze Found ******************");
@@ -654,9 +661,10 @@ public class SearchAutomation {
 	 */
 	public static double buildMazeHeuristic(String pathLen, String nodes, String fringe){
 		//double heuristic = (0.25*Double.parseDouble(pathLen))+(0.25*Double.parseDouble(nodes))+(0.5*Double.parseDouble(fringe));
-		double heuristic = Double.parseDouble(pathLen);
-		//double heuristic = Double.parseDouble(nodes);
-		//double heuristic = Double.parseDouble(fringe);
-		return heuristic;
+		double heuristicDouble=0.0;
+		if (heuristic.equals("pathLen"))		heuristicDouble = Double.parseDouble(pathLen);
+		else if (heuristic.equals("nodes")) 	heuristicDouble = Double.parseDouble(nodes);
+		else if (heuristic.equals("fringe"))	heuristicDouble = Double.parseDouble(fringe);
+		return heuristicDouble;
 	}
 }

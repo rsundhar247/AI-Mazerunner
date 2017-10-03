@@ -53,7 +53,7 @@ public class Mazerunner{
 		System.out.println();
 		System.out.println();
 		
-		System.out.println("Attempt #: " + mazesBuilt);
+		//System.out.println("Attempt #: " + mazesBuilt);
 		System.out.println("################################## DFS Search ##################################");
 		startTime = System.currentTimeMillis();	//record how long DFS takes
 		DFSMazeSearch();
